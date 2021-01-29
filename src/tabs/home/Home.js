@@ -9,18 +9,17 @@ import ListThumbnail from '../../components/ListThumbnail.js';
 import {View} from 'react-native';
 import {Text, Container, Card, CardItem, Content} from 'native-base';
 import {useFocusEffect} from '@react-navigation/native';
+import {apiUrl} from '../../../constants';
 
 const Home = ({navigation}) => {
   const [favoriteBeers, setFavoriteBeers] = useState([]);
   const [favoriteBreweries, setFavoriteBreweries] = useState([]);
-
   useFocusEffect(
     React.useCallback(() => {
       loadFavoriteBeers();
       loadFavoriteBreweries();
     }, []),
   );
-
   const [beerModal, setBeerModal] = useState({
     visible: false,
     beerId: '',
@@ -75,8 +74,11 @@ const Home = ({navigation}) => {
   });
 
   const loadFavoriteBeers = async () => {
+    const endpoint = 'api/beers/favorites';
+    const url = apiUrl + endpoint;
+    console.log({url})
     axios
-      .get('http://localhost:8080/api/beers/favorites')
+      .get(url)
       // eslint-disable-next-line prettier/prettier
       .then(function(response) {
         setFavoriteBeers(response.data);
@@ -88,8 +90,11 @@ const Home = ({navigation}) => {
   };
 
   const loadFavoriteBreweries = async () => {
+    const endpoint = 'api/breweries/favorites';
+    const url = apiUrl + endpoint;
+
     axios
-      .get('http://localhost:8080/api/breweries/favorites')
+      .get(url)
       // eslint-disable-next-line prettier/prettier
       .then(function(response) {
         setFavoriteBreweries(response.data);
@@ -129,8 +134,10 @@ const Home = ({navigation}) => {
 
   // eslint-disable-next-line prettier/prettier
   const onRemoveFromFavoritePress = (id, type) => {
+    const endpoint = `api/${type}/${id}`;
+    const url = apiUrl + endpoint;
     axios
-      .put(`http://localhost:8080/api/${type}/${id}`, {
+      .put(url, {
         isFavorite: false,
       })
       // eslint-disable-next-line prettier/prettier
