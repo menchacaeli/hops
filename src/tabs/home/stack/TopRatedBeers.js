@@ -6,7 +6,7 @@ import BeerModal from '../../../components/BeerModal.js';
 import ListThumbnailSquare from '../../../components/ListThumbnailSquare.js';
 import {StyleSheet} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
-
+import { apiUrl } from '../../../../constants';
 const TopRatedBeers = () => {
   const [beers, setBeers] = useState([]);
   const [beerModal, setBeerModal] = useState({
@@ -27,8 +27,10 @@ const TopRatedBeers = () => {
   );
 
   const loadBeers = async () => {
+    const endpoint = 'api/beers/toprated';
+    const url = apiUrl + endpoint; 
     axios
-      .get('http://localhost:8080/api/beers/toprated')
+      .get(url)
       // eslint-disable-next-line prettier/prettier
       .then(function(response) {
         setBeers(response.data);

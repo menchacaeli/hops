@@ -15,7 +15,7 @@ import BreweryModal from '../../components/BreweryModal.js';
 import ListThumbnail from '../../components/ListThumbnail.js';
 import {StyleSheet} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
-
+import { apiUrl } from '../../../constants';
 const Breweries = () => {
   const [breweries, setBreweries] = useState([]);
   const [breweryModal, setBreweryModal] = useState({
@@ -36,8 +36,10 @@ const Breweries = () => {
   );
 
   const loadBreweries = async () => {
+    const endpoint = 'api/breweries';
+    const url = apiUrl + endpoint;
     axios
-      .get('http://localhost:8080/api/breweries')
+      .get(url)
       // eslint-disable-next-line prettier/prettier
       .then(function(response) {
         setBreweries(response.data);
@@ -50,8 +52,10 @@ const Breweries = () => {
 
   // eslint-disable-next-line prettier/prettier
   const onStarRatingPress = (rating, id) => {
+    const endpoint = `api/breweries/${id}`;
+    const url = apiUrl + endpoint;
     axios
-      .put(`http://localhost:8080/api/breweries/${id}`, {
+      .put(url, {
         rating: rating,
       })
       // eslint-disable-next-line prettier/prettier
@@ -67,8 +71,10 @@ const Breweries = () => {
 
   // eslint-disable-next-line prettier/prettier
   const onAddToFavoritePress = id => {
+    const endpoint = `api/breweries/${id}`;
+    const url = apiUrl + endpoint;
     axios
-      .put(`http://localhost:8080/api/breweries/${id}`, {
+      .put(url, {
         isFavorite: true,
       })
       // eslint-disable-next-line prettier/prettier
