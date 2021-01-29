@@ -17,7 +17,7 @@ import BeerModal from '../../components/BeerModal.js';
 import ListThumbnailSquare from '../../components/ListThumbnailSquare.js';
 import {StyleSheet} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
-
+import { apiUrl } from '../../../constants';
 const Beers = () => {
   const [beers, setBeers] = useState([]);
   const [beerModal, setBeerModal] = useState({
@@ -39,8 +39,10 @@ const Beers = () => {
   );
 
   const loadBeers = async () => {
+    const endpoint = '/api/beers';
+    const url = apiUrl + endpoint;
     axios
-      .get('http://localhost:8080/api/beers')
+      .get(url)
       // eslint-disable-next-line prettier/prettier
       .then(function(response) {
         setBeers(response.data);
@@ -48,13 +50,16 @@ const Beers = () => {
       // eslint-disable-next-line prettier/prettier
       .catch(function(error) {
         console.error(error);
+        setBeers([])
       });
   };
 
   // eslint-disable-next-line prettier/prettier
   const onStarRatingPress = (rating, id) => {
+    const endpoint = `api/beers/${id}`;
+    const url = apiUrl + endpoint;
     axios
-      .put(`http://localhost:8080/api/beers/${id}`, {
+      .put(url, {
         rating: rating,
       })
       // eslint-disable-next-line prettier/prettier
@@ -70,8 +75,10 @@ const Beers = () => {
 
   // eslint-disable-next-line prettier/prettier
   const onAddToFavoritePress = id => {
+    const endpoint = `api/beers/${id}`;
+    const url = apiUrl + endpoint;
     axios
-      .put(`http://localhost:8080/api/beers/${id}`, {
+      .put(url, {
         isFavorite: true,
       })
       // eslint-disable-next-line prettier/prettier

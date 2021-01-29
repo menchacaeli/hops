@@ -3,8 +3,9 @@ import axios from 'axios';
 import {Container, Content} from 'native-base';
 import BreweryModal from '../../../components/BreweryModal.js';
 import ListThumbnail from '../../../components/ListThumbnail.js';
-import {View} from 'react-native';
+import {View, Text} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
+import { apiUrl } from '../../../../constants.js';
 
 const TrendingBreweries = () => {
   const [breweries, setBreweries] = useState([]);
@@ -26,8 +27,10 @@ const TrendingBreweries = () => {
   );
 
   const loadBreweries = async () => {
+    const endpoint = 'api/breweries/toprated';
+    const url = apiUrl + endpoint;
     axios
-      .get('http://localhost:8080/api/breweries/toprated')
+      .get(url)
       // eslint-disable-next-line prettier/prettier
       .then(function(response) {
         setBreweries(response.data);
@@ -66,7 +69,12 @@ const TrendingBreweries = () => {
   return (
     <Container>
       <Content padder>
-        {topRatedBreweries}
+        {
+          topRatedBreweries && topRatedBreweries.length > 0 ?
+          topRatedBreweries
+          :
+          <Text>There are currently no top rated breweries, come back later.</Text>
+        }
         <BreweryModal
           visible={breweryModal.visible}
           header={breweryModal.header}
