@@ -22,7 +22,7 @@ const CreateAccount = () => {
         success
         style={styles.button}
         onPress={() => onCreateAccount()}>
-        <Text>submit</Text>
+        <Text>create account</Text>
       </Button>
     </Form>
   );

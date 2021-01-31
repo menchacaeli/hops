@@ -19,7 +19,7 @@ const Login = () => {
         success
         style={styles.button}
         onPress={() => onLogin()}>
-        <Text>submit</Text>
+        <Text>login</Text>
       </Button>
     </Form>
   );
