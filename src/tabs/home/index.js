@@ -5,12 +5,16 @@ import UpcomingEventsReleases from './stack/UpcomingEventsReleases.js';
 import TopRatedBeers from './stack/TopRatedBeers.js';
 import TopRatedBreweries from './stack/TopRatedBreweries.js';
 
+import { Text } from 'react-native';
+import { Button, Icon } from 'native-base';
 const HomeStack = createStackNavigator();
 
-const AppStack = () => {
+const AppStack = ({signout}) => {
   return (
     <HomeStack.Navigator>
-      <HomeStack.Screen name="Discover" component={Home} />
+      <HomeStack.Screen name="Discover" component={Home} options={{
+        headerRight: () => logout(signout)
+      }} />
       <HomeStack.Screen
         name="Upcoming Events & Releases"
         component={UpcomingEventsReleases}
@@ -24,4 +28,14 @@ const AppStack = () => {
   );
 };
 
+const logout = (signout) => {
+  return (
+    <Icon
+      type="FontAwesome"
+      style={{marginRight: 8, color: '#71bc78'}}
+      onPress={() =>  signout()}
+      name={'sign-out'}
+    />
+  )
+}
 export default AppStack;

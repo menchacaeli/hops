@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {Icon} from 'native-base';
+import {Icon, View} from 'native-base';
 import HomeStack from './home/index.js';
 import Map from './map/Map.js';
 import Beers from './beers/Beers.js';
@@ -9,7 +9,7 @@ import Breweries from './breweries/Breweries.js';
 
 const Tab = createBottomTabNavigator();
 
-const AppTab = () => {
+const AppTab = ({handleSignOut}) => {
   return (
     <NavigationContainer>
       <Tab.Navigator
@@ -35,11 +35,12 @@ const AppTab = () => {
             );
           },
         })}
+
         tabBarOptions={{
           activeTintColor: '#71bc78', //fern
           inactiveTintColor: '#919c92', //fern gray tone
         }}>
-        <Tab.Screen name="Discover" component={HomeStack} />
+        <Tab.Screen name="Discover" component={HomeStack} signout={handleSignOut}/>
         <Tab.Screen name="Beers" component={Beers} />
         <Tab.Screen name="Breweries" component={Breweries} />
         <Tab.Screen name="Map" component={Map} />
