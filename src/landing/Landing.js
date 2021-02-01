@@ -7,13 +7,15 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
+  ToastAndroid
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Container, Content, Form, Item, Input, Button, Text} from 'native-base';
 import {useFocusEffect} from '@react-navigation/native';
 import Login from '../login/Login.js';
 import Account from '../account/CreateAccount.js';
-
-const Landing = () => {
+import {post} from '../../helpers/fetchRequests';
+const Landing = ({setToken}) => {
   const [login, setLogin] = useState(false);
   const [account, setAccount] = useState(false);
 
@@ -52,6 +54,21 @@ const Landing = () => {
     setLogin(true);
   };
 
+  const setUser = (user={name:'',email:'',password:''}) => {
+    const endpoint = 'auth/signin';
+    post(endpoint, user).then(response => {
+      if (response && response.status && response.status === "success") {
+        const token = response.data.user._id;
+        AsyncStorage.setItem('token', token).then(status => {
+          setToken(token)
+        }).catch(error => {
+          console.log({asyncStorageError: error})
+        })
+      }
+    }).catch(err => {
+      console.log({err})
+    })
+  }
   return (
     <Container style={styles.container}>
       <Content contentContainerStyle={styles.content}>
@@ -61,8 +78,8 @@ const Landing = () => {
           </Animated.View>
         </View>
         <Form>
-          {login ? <Login /> : null}
-          {account ? <Account /> : null}
+          {login ? <Login setUser={setUser}/> : null}
+          {account ? <Account setUser={setUser}/> : null}
           {login ? null : account ? null : (
             <>
               <Button

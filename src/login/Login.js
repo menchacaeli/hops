@@ -1,17 +1,31 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet} from 'react-native';
 import {Form, Item, Input, Button, Text} from 'native-base';
 
-const Login = () => {
-  const onLogin = () => {};
+const Login = ({setUser}) => {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('');
+  const onLogin = () => {
+    if (email && password) {
+      setUser({email, password})
+    }
+  };
 
   return (
     <Form>
       <Item>
-        <Input placeholder="Username" />
+        <Input 
+          placeholder="Email" 
+          onChangeText={email => setEmail(email)}
+          autoCompleteType="email"  
+        />
       </Item>
       <Item last>
-        <Input placeholder="Password" />
+        <Input 
+          placeholder="Password" 
+          onChangeText={password => setPassword(password)} 
+          autoCompleteType="password" 
+        />
       </Item>
       <Button
         rounded
