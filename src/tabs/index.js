@@ -35,12 +35,13 @@ const AppTab = ({handleSignOut}) => {
             );
           },
         })}
-
         tabBarOptions={{
           activeTintColor: '#71bc78', //fern
           inactiveTintColor: '#919c92', //fern gray tone
         }}>
-        <Tab.Screen name="Discover" component={HomeStack} signout={handleSignOut}/>
+        <Tab.Screen name="Discover">
+          {props => <HomeStack {...props} signout={handleSignOut} />}
+        </Tab.Screen>
         <Tab.Screen name="Beers" component={Beers} />
         <Tab.Screen name="Breweries" component={Breweries} />
         <Tab.Screen name="Map" component={Map} />

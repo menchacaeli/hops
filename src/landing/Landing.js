@@ -7,7 +7,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
-  ToastAndroid
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Container, Content, Form, Item, Input, Button, Text} from 'native-base';
@@ -54,21 +53,25 @@ const Landing = ({setToken}) => {
     setLogin(true);
   };
 
-  const setUser = (user={name:'',email:'',password:''}) => {
+  const setUser = user => {
     const endpoint = 'auth/signin';
-    post(endpoint, user).then(response => {
-      if (response && response.status && response.status === "success") {
-        const token = response.data.user._id;
-        AsyncStorage.setItem('token', token).then(status => {
-          setToken(token)
-        }).catch(error => {
-          console.log({asyncStorageError: error})
-        })
-      }
-    }).catch(err => {
-      console.log({err})
-    })
-  }
+    post(endpoint, user)
+      .then(response => {
+        if (response && response.status && response.status === 'success') {
+          const token = response.data.user._id;
+          AsyncStorage.setItem('token', token)
+            .then(status => {
+              setToken(token);
+            })
+            .catch(error => {
+              console.log({asyncStorageError: error});
+            });
+        }
+      })
+      .catch(err => {
+        console.log({err});
+      });
+  };
   return (
     <Container style={styles.container}>
       <Content contentContainerStyle={styles.content}>
@@ -78,8 +81,8 @@ const Landing = ({setToken}) => {
           </Animated.View>
         </View>
         <Form>
-          {login ? <Login setUser={setUser}/> : null}
-          {account ? <Account setUser={setUser}/> : null}
+          {login ? <Login setUser={setUser} /> : null}
+          {account ? <Account setUser={setUser} /> : null}
           {login ? null : account ? null : (
             <>
               <Button

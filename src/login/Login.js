@@ -3,28 +3,34 @@ import {StyleSheet} from 'react-native';
 import {Form, Item, Input, Button, Text} from 'native-base';
 
 const Login = ({setUser}) => {
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
   const onLogin = () => {
     if (email && password) {
-      setUser({email, password})
+      const lowerCaseEmail = email.toLowerCase();
+      const user = {
+        email: lowerCaseEmail,
+        password: password,
+      };
+      setUser(user);
     }
   };
 
   return (
     <Form>
       <Item>
-        <Input 
-          placeholder="Email" 
+        <Input
+          placeholder="Email"
           onChangeText={email => setEmail(email)}
-          autoCompleteType="email"  
+          autoCompleteType="off"
         />
       </Item>
       <Item last>
-        <Input 
-          placeholder="Password" 
-          onChangeText={password => setPassword(password)} 
-          autoCompleteType="password" 
+        <Input
+          placeholder="Password"
+          onChangeText={password => setPassword(password)}
+          autoCompleteType="off"
         />
       </Item>
       <Button
