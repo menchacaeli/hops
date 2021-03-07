@@ -36,10 +36,10 @@ const BreweryModal = ({
                 <View transparent style={styles.starContainer}>
                   <StarRating
                     disabled={isReadOnly}
-                    emptyStar={'ios-star-outline'}
-                    fullStar={'ios-star'}
-                    halfStar={'ios-star-half'}
-                    iconSet={'Ionicons'}
+                    emptyStar={'star-border'}
+                    fullStar={'star'}
+                    halfStar={'star-half'}
+                    iconSet={'MaterialIcons'}
                     maxStars={5}
                     rating={rating}
                     starSize={16}
