@@ -32,11 +32,11 @@ const AppStack = ({signout}) => {
   );
 };
 
-const logout = signout => {
+const logout = (signout) => {
   return (
     <Icon
       type="FontAwesome5"
-      style={{marginRight: 8, color: '#71bc78'}}
+      style={{marginRight: 15, color: '#71bc78', fontSize: 20}}
       onPress={() => signout()}
       name={'sign-out-alt'}
     />

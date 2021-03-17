@@ -56,10 +56,8 @@ const ListThumbnail = ({
         </View>
       </Body>
       <Right>
-        <Button transparent>
-          <Text style={styles.view} onPress={onPress}>
-            View
-          </Text>
+        <Button transparent onPress={onPress}>
+          <Text style={styles.view}>View</Text>
         </Button>
       </Right>
     </ListItem>
@@ -69,6 +67,7 @@ const ListThumbnail = ({
 const styles = StyleSheet.create({
   view: {
     color: '#919c92',
+    fontSize: 14,
   },
   star: {
     paddingRight: 2,

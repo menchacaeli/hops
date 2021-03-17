@@ -23,10 +23,8 @@ const ListThumbnailSeparator = ({image, text, subtext, onPress}) => {
         </Text>
       </Body>
       <Right>
-        <Button transparent>
-          <Text style={styles.button} onPress={onPress}>
-            View
-          </Text>
+        <Button transparent onPress={onPress}>
+          <Text style={styles.view}>View</Text>
         </Button>
       </Right>
     </ListItem>
@@ -34,8 +32,9 @@ const ListThumbnailSeparator = ({image, text, subtext, onPress}) => {
 };
 
 const styles = StyleSheet.create({
-  button: {
+  view: {
     color: '#919c92',
+    fontSize: 14,
   },
 });
 

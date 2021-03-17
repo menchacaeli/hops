@@ -51,7 +51,7 @@ const BreweryModal = ({
                   </View>
                 </View>
                 {isReadOnly ? null : (
-                  <div>
+                  <View>
                     {isFavorite ? (
                       <Button
                         small
@@ -71,7 +71,7 @@ const BreweryModal = ({
                         <Text>Add to Favs</Text>
                       </Button>
                     )}
-                  </div>
+                  </View>
                 )}
               </Body>
             </Left>

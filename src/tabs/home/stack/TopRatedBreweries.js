@@ -1,47 +1,30 @@
 import React, {useState} from 'react';
-import axios from 'axios';
-import {Container, Content} from 'native-base';
+import {Container, Content, Spinner} from 'native-base';
 import BreweryModal from '../../../components/BreweryModal.js';
 import ListThumbnail from '../../../components/ListThumbnail.js';
+import {StyleSheet} from 'react-native';
 import {View, Text} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
-import { apiUrl } from '../../../../constants.js';
+import {useDispatch, useSelector} from 'react-redux';
+import {getTopRatedBreweries} from '../../../redux/slices/features/topRatedBreweriesSlice.js';
+import {breweryModel} from '../../../ui/breweryModel.js';
 
 const TrendingBreweries = () => {
-  const [breweries, setBreweries] = useState([]);
-  const [breweryModal, setBreweryModal] = useState({
-    visible: false,
-    breweryId: '',
-    header: '',
-    address: '',
-    phone: '',
-    image: '',
-    rating: 0,
-    isFavorite: '',
-  });
+  const [breweryModal, setBreweryModal] = useState(breweryModel);
+  const {topRatedBreweriesList} = useSelector(
+    (state) => state.topRatedBreweries,
+  );
+  const _dispatch = useDispatch();
 
   useFocusEffect(
     React.useCallback(() => {
-      loadBreweries();
+      if (topRatedBreweriesList && topRatedBreweriesList.length <= 0) {
+        _dispatch(getTopRatedBreweries());
+      }
     }, []),
   );
 
-  const loadBreweries = async () => {
-    const endpoint = 'api/breweries/toprated';
-    const url = apiUrl + endpoint;
-    axios
-      .get(url)
-      // eslint-disable-next-line prettier/prettier
-      .then(function(response) {
-        setBreweries(response.data);
-      })
-      // eslint-disable-next-line prettier/prettier
-      .catch(function(error) {
-        console.error(error);
-      });
-  };
-
-  const topRatedBreweries = breweries.map((item, index, stack) => {
+  const topRatedBreweries = topRatedBreweriesList.map((item, index, stack) => {
     return (
       <View key={index}>
         <ListThumbnail
@@ -69,12 +52,13 @@ const TrendingBreweries = () => {
   return (
     <Container>
       <Content padder>
-        {
-          topRatedBreweries && topRatedBreweries.length > 0 ?
-          topRatedBreweries
-          :
-          <Text>There are currently no top rated breweries, come back later.</Text>
-        }
+        {topRatedBreweriesList.length <= 0 ? (
+          <Spinner color="#71bc78" style={styles.spinner} />
+        ) : topRatedBreweriesList.length === 0 ? (
+          <Text>There are currently no top rated beers, come back later.</Text>
+        ) : (
+          <>{topRatedBreweries}</>
+        )}
         <BreweryModal
           visible={breweryModal.visible}
           header={breweryModal.header}
@@ -95,5 +79,14 @@ const TrendingBreweries = () => {
     </Container>
   );
 };
+
+const styles = StyleSheet.create({
+  spinner: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: '75%',
+  },
+});
 
 export default TrendingBreweries;

@@ -1,49 +1,30 @@
 import React, {useState} from 'react';
-import axios from 'axios';
 import {View} from 'react-native';
 import {Container, Content, Spinner} from 'native-base';
 import BeerModal from '../../../components/BeerModal.js';
 import ListThumbnailSquare from '../../../components/ListThumbnailSquare.js';
 import {StyleSheet} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
-import { apiUrl } from '../../../../constants';
+import {useDispatch, useSelector} from 'react-redux';
+import {getTopRatedBeers} from '../../../redux/slices/features/topRatedBeersSlice.js';
+import {beerModel} from '../../../ui/beerModel.js';
+
 const TopRatedBeers = () => {
-  const [beers, setBeers] = useState([]);
-  const [beerModal, setBeerModal] = useState({
-    visible: false,
-    beerId: '',
-    header: '',
-    subtext: '',
-    stats: '',
-    description: '',
-    image: '',
-    rating: 0,
-  });
+  const [beerModal, setBeerModal] = useState(beerModel);
+  const {topRatedBeersList} = useSelector((state) => state.topRatedBeers);
+  const _dispatch = useDispatch();
 
   useFocusEffect(
     React.useCallback(() => {
-      loadBeers();
+      if (topRatedBeersList && topRatedBeersList.length <= 0) {
+        _dispatch(getTopRatedBeers());
+      }
     }, []),
   );
 
-  const loadBeers = async () => {
-    const endpoint = 'api/beers/toprated';
-    const url = apiUrl + endpoint; 
-    axios
-      .get(url)
-      // eslint-disable-next-line prettier/prettier
-      .then(function(response) {
-        setBeers(response.data);
-      })
-      // eslint-disable-next-line prettier/prettier
-      .catch(function(error) {
-        console.error(error);
-      });
-  };
-
-  const topRatedBeers = beers
+  const topRatedBeers = topRatedBeersList
     // eslint-disable-next-line prettier/prettier
-    .filter(x => x.rating >= 3)
+    .filter((x) => x.rating >= 3)
     .map((item, index) => {
       return (
         <View key={index}>
@@ -73,8 +54,10 @@ const TopRatedBeers = () => {
   return (
     <Container>
       <Content>
-        {beers.length <= 0 ? (
+        {topRatedBeersList.length <= 0 ? (
           <Spinner color="#71bc78" style={styles.spinner} />
+        ) : topRatedBeersList.length === 0 ? (
+          <Text>There are currently no top rated beers, come back later.</Text>
         ) : (
           <>{topRatedBeers}</>
         )}

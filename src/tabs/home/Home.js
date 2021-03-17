@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import {StyleSheet} from 'react-native';
 import BeerModal from '../../components/BeerModal.js';
@@ -10,58 +10,45 @@ import {View} from 'react-native';
 import {Text, Container, Card, CardItem, Content} from 'native-base';
 import {useFocusEffect} from '@react-navigation/native';
 import {apiUrl} from '../../../constants';
+import {beerModel} from '../../ui/beerModel.js';
+import {breweryModel} from '../../ui/breweryModel.js';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  getBeerFavorites,
+  getBreweryFavorites,
+} from '../../redux/slices/homeSlice.js';
+import {removeBeerFromFavs} from '../../redux/slices/beersSlice.js';
+import {removeBreweryFromFavs} from '../../redux/slices/breweriesSlice.js';
 
 const Home = ({navigation}) => {
-  const [favoriteBeers, setFavoriteBeers] = useState([]);
-  const [favoriteBreweries, setFavoriteBreweries] = useState([]);
+  const [beerModal, setBeerModal] = useState(beerModel);
+  const [breweryModal, setBreweryModal] = useState(breweryModel);
+  const {
+    discoverItems,
+    beerFavorites,
+    breweryFavorites,
+    beerloading,
+    breweryloading,
+  } = useSelector((state) => state.home);
+  const _dispatch = useDispatch();
+
+  useEffect(() => {
+    if (beerloading === 'fulfilled') {
+      _dispatch(getBeerFavorites());
+    }
+    if (breweryloading === 'fulfilled') {
+      _dispatch(getBreweryFavorites());
+    }
+  }, [beerloading]);
+
   useFocusEffect(
     React.useCallback(() => {
-      loadFavoriteBeers();
-      loadFavoriteBreweries();
+      _dispatch(getBeerFavorites());
+      _dispatch(getBreweryFavorites());
     }, []),
   );
-  const [beerModal, setBeerModal] = useState({
-    visible: false,
-    beerId: '',
-    header: '',
-    subtext: '',
-    stats: '',
-    description: '',
-    image: '',
-    rating: 0,
-    isFavorite: false,
-  });
 
-  const [breweryModal, setBreweryModal] = useState({
-    visible: false,
-    breweryId: '',
-    header: '',
-    address: '',
-    phone: '',
-    image: '',
-    rating: 0,
-    isFavorite: '',
-  });
-
-  const items = [
-    {
-      text: 'Upcoming Events & Releases',
-      icon: 'calendar-alt',
-      stack: 'Upcoming Events & Releases',
-    },
-    {
-      text: 'Top Rated Beers',
-      icon: 'beer',
-      stack: 'Top Rated Beers',
-    },
-    {
-      text: 'Top Rated Breweries',
-      icon: 'warehouse',
-      stack: 'Top Rated Breweries',
-    },
-  ];
-
-  const list = items.map((item, index, stack) => {
+  const list = discoverItems.map((item, index, stack) => {
     return (
       <ListIcon
         key={index}
@@ -73,39 +60,7 @@ const Home = ({navigation}) => {
     );
   });
 
-  const loadFavoriteBeers = async () => {
-    const endpoint = 'api/beers/favorites';
-    const url = apiUrl + endpoint;
-    console.log({url})
-    axios
-      .get(url)
-      // eslint-disable-next-line prettier/prettier
-      .then(function(response) {
-        setFavoriteBeers(response.data);
-      })
-      // eslint-disable-next-line prettier/prettier
-      .catch(function(error) {
-        console.error(error);
-      });
-  };
-
-  const loadFavoriteBreweries = async () => {
-    const endpoint = 'api/breweries/favorites';
-    const url = apiUrl + endpoint;
-
-    axios
-      .get(url)
-      // eslint-disable-next-line prettier/prettier
-      .then(function(response) {
-        setFavoriteBreweries(response.data);
-      })
-      // eslint-disable-next-line prettier/prettier
-      .catch(function(error) {
-        console.error(error);
-      });
-  };
-
-  const favBeers = favoriteBeers.map((item, index, stack) => {
+  const favBeers = beerFavorites.map((item, index, stack) => {
     return (
       <View key={index}>
         <ListThumbnailSquare
@@ -132,38 +87,23 @@ const Home = ({navigation}) => {
     );
   });
 
-  // eslint-disable-next-line prettier/prettier
-  const onRemoveFromFavoritePress = (id, type) => {
-    const endpoint = `api/${type}/${id}`;
-    const url = apiUrl + endpoint;
-    axios
-      .put(url, {
-        isFavorite: false,
-      })
-      // eslint-disable-next-line prettier/prettier
-      .then(function(response) {
-        console.log(response);
-        if (type === 'beers') {
-          loadFavoriteBeers();
-          setBeerModal({
-            ...beerModal,
-            visible: false,
-          });
-        } else {
-          loadFavoriteBreweries();
-          setBreweryModal({
-            ...breweryModal,
-            visible: false,
-          });
-        }
-      })
-      // eslint-disable-next-line prettier/prettier
-      .catch(function(error) {
-        console.error(error);
+  const onRemoveFromFav = (id, type) => {
+    if (type === 'beers') {
+      _dispatch(removeBeerFromFavs(id));
+      setBeerModal({
+        ...beerModal,
+        visible: false,
       });
+    } else {
+      _dispatch(removeBreweryFromFavs(id));
+      setBreweryModal({
+        ...breweryModal,
+        visible: false,
+      });
+    }
   };
 
-  const favBreweries = favoriteBreweries.map((item, index, stack) => {
+  const favBreweries = breweryFavorites.map((item, index, stack) => {
     return (
       <View key={index}>
         <ListThumbnail
@@ -215,8 +155,8 @@ const Home = ({navigation}) => {
         image={beerModal.image}
         rating={beerModal.rating}
         isFavorite={beerModal.isFavorite}
-        isReadOnly={true}
-        hasAddRemoveButton={false}
+        isReadOnly={false}
+        hasAddRemoveButton={true}
         closeModal={() => {
           setBeerModal({
             ...beerModal,
@@ -224,7 +164,7 @@ const Home = ({navigation}) => {
           });
         }}
         removeFromFavorites={() => {
-          onRemoveFromFavoritePress(beerModal.beerId, 'beers');
+          onRemoveFromFav(beerModal.beerId, 'beers');
         }}
       />
       <BreweryModal
@@ -235,7 +175,8 @@ const Home = ({navigation}) => {
         image={breweryModal.image}
         rating={breweryModal.rating}
         isFavorite={breweryModal.isFavorite}
-        isReadOnly={true}
+        isReadOnly={false}
+        hasAddRemoveButton={true}
         closeModal={() => {
           setBreweryModal({
             ...breweryModal,
@@ -243,7 +184,7 @@ const Home = ({navigation}) => {
           });
         }}
         removeFromFavorites={() => {
-          onRemoveFromFavoritePress(breweryModal.breweryId, 'breweries');
+          onRemoveFromFav(breweryModal.breweryId, 'breweries');
         }}
       />
     </Container>

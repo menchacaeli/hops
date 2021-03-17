@@ -10,13 +10,13 @@ const BeerModal = ({
   stats,
   image,
   description,
-  closeModal,
-  addToFavorites,
-  removeFromFavorites,
   rating,
   isFavorite,
   isReadOnly,
   hasAddRemoveButton,
+  closeModal,
+  addToFavorites,
+  removeFromFavorites,
 }) => {
   return (
     <Modal animationType="slide" transparent={true} visible={visible}>

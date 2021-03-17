@@ -1,5 +1,4 @@
-import React, {useState} from 'react';
-import axios from 'axios';
+import React, {useState, useEffect} from 'react';
 import {View} from 'react-native';
 import {
   Container,
@@ -15,81 +14,57 @@ import BreweryModal from '../../components/BreweryModal.js';
 import ListThumbnail from '../../components/ListThumbnail.js';
 import {StyleSheet} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
-import { apiUrl } from '../../../constants';
+import {breweryModel} from '../../ui/breweryModel.js';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  getBreweries,
+  removeBreweryFromFavs,
+  addBreweryToFavs,
+} from '../../redux/slices/breweriesSlice.js';
+import {getStarRating} from '../../redux/slices/features/starRatingSlice.js';
+import {getBreweryFavorites} from '../../redux/slices/homeSlice.js';
+
 const Breweries = () => {
-  const [breweries, setBreweries] = useState([]);
-  const [breweryModal, setBreweryModal] = useState({
-    visible: false,
-    breweryId: '',
-    header: '',
-    address: '',
-    phone: '',
-    image: '',
-    rating: 0,
-    isFavorite: false,
-  });
+  const {breweries} = useSelector((state) => state.breweries);
+  const {loading} = useSelector((state) => state.starRating);
+  const [breweryModal, setBreweryModal] = useState(breweryModel);
+  const _dispatch = useDispatch();
+
+  useEffect(() => {
+    if (loading === 'fulfilled') {
+      _dispatch(getBreweries());
+    }
+  }, [loading]);
 
   useFocusEffect(
     React.useCallback(() => {
-      loadBreweries();
+      _dispatch(getBreweries());
     }, []),
   );
 
-  const loadBreweries = async () => {
-    const endpoint = 'api/breweries';
-    const url = apiUrl + endpoint;
-    axios
-      .get(url)
-      // eslint-disable-next-line prettier/prettier
-      .then(function(response) {
-        setBreweries(response.data);
-      })
-      // eslint-disable-next-line prettier/prettier
-      .catch(function(error) {
-        console.error(error);
-      });
+  const onStarRatingPress = (id, rating) => {
+    const model = {
+      id: id,
+      rating: rating,
+      type: 'breweries',
+    };
+    _dispatch(getStarRating(model));
   };
 
-  // eslint-disable-next-line prettier/prettier
-  const onStarRatingPress = (rating, id) => {
-    const endpoint = `api/breweries/${id}`;
-    const url = apiUrl + endpoint;
-    axios
-      .put(url, {
-        rating: rating,
-      })
-      // eslint-disable-next-line prettier/prettier
-      .then(function(response) {
-        console.log(response);
-        loadBreweries();
-      })
-      // eslint-disable-next-line prettier/prettier
-      .catch(function(error) {
-        console.error(error);
-      });
+  const onAddToFav = (id) => {
+    _dispatch(addBreweryToFavs(id));
+    setBreweryModal({
+      ...breweryModal,
+      visible: false,
+    });
   };
 
-  // eslint-disable-next-line prettier/prettier
-  const onAddToFavoritePress = id => {
-    const endpoint = `api/breweries/${id}`;
-    const url = apiUrl + endpoint;
-    axios
-      .put(url, {
-        isFavorite: true,
-      })
-      // eslint-disable-next-line prettier/prettier
-      .then(function(response) {
-        console.log(response);
-        loadBreweries();
-        setBreweryModal({
-          ...breweryModal,
-          visible: false,
-        });
-      })
-      // eslint-disable-next-line prettier/prettier
-      .catch(function(error) {
-        console.error(error);
-      });
+  const onRemoveFromFav = (id) => {
+    _dispatch(removeBreweryFromFavs(id));
+    setBreweryModal({
+      ...breweryModal,
+      visible: false,
+    });
   };
 
   const breweryList = breweries.map((item, index) => {
@@ -101,8 +76,7 @@ const Breweries = () => {
           image={item.image}
           rating={item.rating}
           isReadOnly={false}
-          // eslint-disable-next-line prettier/prettier
-          onStarRatingPress={rating => onStarRatingPress(rating, item.id)}
+          onStarRatingPress={(rating) => onStarRatingPress(item.id, rating)}
           onPress={() =>
             setBreweryModal({
               visible: true,
@@ -143,8 +117,8 @@ const Breweries = () => {
           image={breweryModal.image}
           rating={breweryModal.rating}
           isFavorite={breweryModal.isFavorite}
-          reloadBreweries={loadBreweries}
-          isReadOnly={true}
+          isReadOnly={false}
+          hasAddRemoveButton={true}
           closeModal={() => {
             setBreweryModal({
               ...breweryModal,
@@ -152,7 +126,10 @@ const Breweries = () => {
             });
           }}
           addToFavorites={() => {
-            onAddToFavoritePress(breweryModal.breweryId);
+            onAddToFav(breweryModal.breweryId);
+          }}
+          removeFromFavorites={() => {
+            onRemoveFromFav(breweryModal.breweryId);
           }}
         />
       </Content>

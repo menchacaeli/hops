@@ -1,5 +1,4 @@
-import React, {useState} from 'react';
-import axios from 'axios';
+import React, {useState, useEffect} from 'react';
 import {View} from 'react-native';
 import {
   Container,
@@ -17,88 +16,61 @@ import BeerModal from '../../components/BeerModal.js';
 import ListThumbnailSquare from '../../components/ListThumbnailSquare.js';
 import {StyleSheet} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
-import { apiUrl } from '../../../constants';
+import {beerModel} from '../../ui/beerModel.js';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  getBeers,
+  removeBeerFromFavs,
+  addBeerToFavs,
+} from '../../redux/slices/beersSlice.js';
+import {getStarRating} from '../../redux/slices/features/starRatingSlice.js';
+import {getBeerFavorites} from '../../redux/slices/homeSlice.js';
+
 const Beers = () => {
-  const [beers, setBeers] = useState([]);
-  const [beerModal, setBeerModal] = useState({
-    visible: false,
-    beerId: '',
-    header: '',
-    subtext: '',
-    stats: '',
-    description: '',
-    image: '',
-    rating: 0,
-    isFavorite: false,
-  });
+  const {beers} = useSelector((state) => state.beers);
+  const {loading} = useSelector((state) => state.starRating);
+  const [beerModal, setBeerModal] = useState(beerModel);
+  const _dispatch = useDispatch();
+
+  useEffect(() => {
+    if (loading === 'fulfilled') {
+      _dispatch(getBeers());
+    }
+  }, [loading]);
 
   useFocusEffect(
     React.useCallback(() => {
-      loadBeers();
+      _dispatch(getBeers());
     }, []),
   );
 
-  const loadBeers = async () => {
-    const endpoint = '/api/beers';
-    const url = apiUrl + endpoint;
-    axios
-      .get(url)
-      // eslint-disable-next-line prettier/prettier
-      .then(function(response) {
-        setBeers(response.data);
-      })
-      // eslint-disable-next-line prettier/prettier
-      .catch(function(error) {
-        console.error(error);
-        setBeers([])
-      });
+  const onStarRatingPress = (id, rating) => {
+    const model = {
+      id: id,
+      rating: rating,
+      type: 'beers',
+    };
+    _dispatch(getStarRating(model));
   };
 
-  // eslint-disable-next-line prettier/prettier
-  const onStarRatingPress = (rating, id) => {
-    const endpoint = `api/beers/${id}`;
-    const url = apiUrl + endpoint;
-    axios
-      .put(url, {
-        rating: rating,
-      })
-      // eslint-disable-next-line prettier/prettier
-      .then(function(response) {
-        console.log(response);
-        loadBeers();
-      })
-      // eslint-disable-next-line prettier/prettier
-      .catch(function(error) {
-        console.error(error);
-      });
+  const onAddToFav = (id) => {
+    _dispatch(addBeerToFavs(id));
+    setBeerModal({
+      ...beerModal,
+      visible: false,
+    });
   };
 
-  // eslint-disable-next-line prettier/prettier
-  const onAddToFavoritePress = id => {
-    const endpoint = `api/beers/${id}`;
-    const url = apiUrl + endpoint;
-    axios
-      .put(url, {
-        isFavorite: true,
-      })
-      // eslint-disable-next-line prettier/prettier
-      .then(function(response) {
-        console.log(response);
-        loadBeers();
-        setBeerModal({
-          ...beerModal,
-          visible: false,
-        });
-      })
-      // eslint-disable-next-line prettier/prettier
-      .catch(function(error) {
-        console.error(error);
-      });
+  const onRemoveFromFav = (id) => {
+    _dispatch(removeBeerFromFavs(id));
+    setBeerModal({
+      ...beerModal,
+      visible: false,
+    });
   };
 
   const bosqueBeers = beers
-    // eslint-disable-next-line prettier/prettier
-    .filter(x => x.brewery === 'Bosque Brewing Co.')
+    .filter((x) => x.brewery === 'Bosque Brewing Co.')
     .map((item, index) => {
       return (
         <View key={index}>
@@ -108,8 +80,7 @@ const Beers = () => {
             image={item.image}
             rating={item.rating}
             isReadOnly={false}
-            // eslint-disable-next-line prettier/prettier
-            onStarRatingPress={rating => onStarRatingPress(rating, item.id)}
+            onStarRatingPress={(rating) => onStarRatingPress(item.id, rating)}
             onPress={() =>
               setBeerModal({
                 visible: true,
@@ -129,8 +100,7 @@ const Beers = () => {
     });
 
   const laCumbreBeers = beers
-    // eslint-disable-next-line prettier/prettier
-    .filter(x => x.brewery === 'La Cumbre Brewing Co.')
+    .filter((x) => x.brewery === 'La Cumbre Brewing Co.')
     .map((item, index) => {
       return (
         <View key={index}>
@@ -140,8 +110,7 @@ const Beers = () => {
             image={item.image}
             rating={item.rating}
             isReadOnly={false}
-            // eslint-disable-next-line prettier/prettier
-            onStarRatingPress={rating => onStarRatingPress(rating, item.id)}
+            onStarRatingPress={(rating) => onStarRatingPress(item.id, rating)}
             onPress={() =>
               setBeerModal({
                 visible: true,
@@ -161,8 +130,7 @@ const Beers = () => {
     });
 
   const marbleBeers = beers
-    // eslint-disable-next-line prettier/prettier
-    .filter(x => x.brewery === 'Marble Brewery')
+    .filter((x) => x.brewery === 'Marble Brewery')
     .map((item, index) => {
       return (
         <View key={index}>
@@ -172,8 +140,7 @@ const Beers = () => {
             image={item.image}
             rating={item.rating}
             isReadOnly={false}
-            // eslint-disable-next-line prettier/prettier
-            onStarRatingPress={rating => onStarRatingPress(rating, item.id)}
+            onStarRatingPress={(rating) => onStarRatingPress(item.id, rating)}
             onPress={() =>
               setBeerModal({
                 visible: true,
@@ -194,7 +161,7 @@ const Beers = () => {
 
   const santaFeBeers = beers
     // eslint-disable-next-line prettier/prettier
-    .filter(x => x.brewery === 'Santa Fe Brewing Co.')
+    .filter((x) => x.brewery === 'Santa Fe Brewing Co.')
     .map((item, index) => {
       return (
         <View key={index}>
@@ -205,7 +172,7 @@ const Beers = () => {
             rating={item.rating}
             isReadOnly={false}
             // eslint-disable-next-line prettier/prettier
-            onStarRatingPress={rating => onStarRatingPress(rating, item.id)}
+            onStarRatingPress={(rating) => onStarRatingPress(item.id, rating)}
             onPress={() =>
               setBeerModal({
                 visible: true,
@@ -261,11 +228,10 @@ const Beers = () => {
           header={beerModal.header}
           subtext={beerModal.subtext}
           stats={beerModal.stats}
-          description={beerModal.description}
           image={beerModal.image}
+          description={beerModal.description}
           rating={beerModal.rating}
           isFavorite={beerModal.isFavorite}
-          reloadBeers={loadBeers}
           isReadOnly={true}
           hasAddRemoveButton={true}
           closeModal={() => {
@@ -275,7 +241,10 @@ const Beers = () => {
             });
           }}
           addToFavorites={() => {
-            onAddToFavoritePress(beerModal.beerId);
+            onAddToFav(beerModal.beerId);
+          }}
+          removeFromFavorites={() => {
+            onRemoveFromFav(beerModal.beerId);
           }}
         />
       </Content>

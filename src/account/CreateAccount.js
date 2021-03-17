@@ -1,13 +1,18 @@
 import React, {useState, useEffect} from 'react';
+import {useDispatch} from 'react-redux';
 import {StyleSheet} from 'react-native';
 import {Form, Item, Input, Button, Text, Icon, View} from 'native-base';
 import {post} from '../../helpers/fetchRequests';
-const CreateAccount = ({setUser}) => {
+import {createUser} from '../redux/slices/userSlice.js';
+
+const CreateAccount = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [errors, setError] = useState([]);
   const [isSubmitted, setSubmitted] = useState(false);
+  const _dispatch = useDispatch();
+
   const onCreateAccount = () => {
     setSubmitted(true);
     setError([]);
@@ -21,19 +26,7 @@ const CreateAccount = ({setUser}) => {
         email,
         password,
       };
-      const endpoint = '/api/users/create';
-      post(endpoint, data)
-        .then(response => {
-          if (response.status && response.status === 'success') {
-            let message = response.data && response.data.message;
-            if (message) {
-              setUser(data);
-            }
-          }
-        })
-        .catch(error => {
-          console.log({error});
-        });
+      _dispatch(createUser(data));
     } else {
       setError([...errors, 'Fields cannot be empty']);
     }
@@ -43,21 +36,21 @@ const CreateAccount = ({setUser}) => {
     <Form>
       <Item>
         <Input
-          onChangeText={uName => setUsername(uName)}
+          onChangeText={(uName) => setUsername(uName)}
           placeholder="Username"
           autoCompleteType="username"
         />
       </Item>
       <Item>
         <Input
-          onChangeText={email => setEmail(email)}
+          onChangeText={(email) => setEmail(email)}
           placeholder="Email"
           autoCompleteType="email"
         />
       </Item>
       <Item last>
         <Input
-          onChangeText={password => setPassword(password)}
+          onChangeText={(password) => setPassword(password)}
           placeholder="Password"
           autoCompleteType="password"
         />
