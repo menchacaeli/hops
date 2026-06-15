@@ -43,9 +43,12 @@ describe('beers service (mock)', () => {
   });
 
   it('updateBeer mutates the mock store', async () => {
-    await updateBeer('bosque-1', { rating: 2 });
-    const beer = await getBeer('bosque-1');
-    expect(beer?.rating).toBe(2);
-    await updateBeer('bosque-1', { rating: 4 });
+    try {
+      await updateBeer('bosque-1', { rating: 2 });
+      const beer = await getBeer('bosque-1');
+      expect(beer?.rating).toBe(2);
+    } finally {
+      await updateBeer('bosque-1', { rating: 4 });
+    }
   });
 });
