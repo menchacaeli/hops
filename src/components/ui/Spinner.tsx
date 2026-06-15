@@ -1,0 +1,23 @@
+import React from 'react';
+import { ActivityIndicator, View, StyleSheet } from 'react-native';
+
+type Props = {
+  color?: string;
+  size?: 'small' | 'large';
+};
+
+export default function Spinner({ color = '#F59E0B', size = 'large' }: Props) {
+  return (
+    <View style={styles.container}>
+      <ActivityIndicator color={color} size={size} />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
