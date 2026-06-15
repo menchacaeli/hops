@@ -1,12 +1,11 @@
 import React, { useCallback } from 'react';
 import { FlatList, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import BreweryModal from '../../components/BreweryModal';
-import ListThumbnail from '../../components/ListThumbnail';
-import { Spinner } from '../../components/ui';
-import { put } from '../../lib/fetchRequests';
-import useDataFetch from '../../hooks/useDataFetch';
-import useModal from '../../hooks/useModal';
+import BreweryModal from '../../../components/BreweryModal';
+import ListThumbnail from '../../../components/ListThumbnail';
+import { Spinner } from '../../../components/ui';
+import useDataFetch from '../../../hooks/useDataFetch';
+import useModal from '../../../hooks/useModal';
 
 type Brewery = {
   id: number;
@@ -18,24 +17,15 @@ type Brewery = {
   isFavorite: boolean;
 };
 
-const Breweries = () => {
-  const { data: breweries, loading, load: loadBreweries } = useDataFetch<Brewery>('api/breweries');
+const TopRatedBreweries = () => {
+  const { data: breweries, loading, load: loadBreweries } = useDataFetch<Brewery>('api/breweries/toprated');
   const { modalState: breweryModal, openModal, closeModal } = useModal();
 
   useFocusEffect(
-    useCallback(() => { loadBreweries(); }, [loadBreweries]),
-  );
-
-  const onStarRatingPress = useCallback((rating: number, id: number) => {
-    put(`api/breweries/${id}`, null, { rating }).then(() => loadBreweries());
-  }, [loadBreweries]);
-
-  const onAddToFavoritePress = useCallback((id: number) => {
-    put(`api/breweries/${id}`, null, { isFavorite: true }).then(() => {
+    useCallback(() => {
       loadBreweries();
-      closeModal();
-    });
-  }, [loadBreweries, closeModal]);
+    }, [loadBreweries]),
+  );
 
   const handleItemPress = useCallback((item: Brewery) => {
     openModal({
@@ -55,11 +45,10 @@ const Breweries = () => {
       subtext={item.address}
       image={item.image}
       rating={item.rating}
-      isReadOnly={false}
-      onStarRatingPress={rating => onStarRatingPress(rating, item.id)}
+      isReadOnly={true}
       onPress={() => handleItemPress(item)}
     />
-  ), [handleItemPress, onStarRatingPress]);
+  ), [handleItemPress]);
 
   const keyExtractor = useCallback((item: Brewery) => String(item.id), []);
 
@@ -68,7 +57,11 @@ const Breweries = () => {
       {loading ? (
         <Spinner />
       ) : (
-        <FlatList data={breweries} keyExtractor={keyExtractor} renderItem={renderItem} />
+        <FlatList
+          data={breweries}
+          keyExtractor={keyExtractor}
+          renderItem={renderItem}
+        />
       )}
       <BreweryModal
         visible={!!breweryModal.visible}
@@ -78,12 +71,11 @@ const Breweries = () => {
         image={String(breweryModal.image ?? '')}
         rating={Number(breweryModal.rating ?? 0)}
         isFavorite={Boolean(breweryModal.isFavorite)}
-        isReadOnly={false}
+        isReadOnly={true}
         closeModal={closeModal}
-        addToFavorites={() => onAddToFavoritePress(Number(breweryModal.breweryId))}
       />
     </View>
   );
 };
 
-export default Breweries;
+export default TopRatedBreweries;
