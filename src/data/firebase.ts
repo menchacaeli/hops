@@ -1,6 +1,6 @@
 // src/data/firebase.ts
-// Replace with real Firebase init when USE_MOCK = false.
+// Replace this entire file with real Firebase initialization when USE_MOCK = false.
 // Install: npx expo install firebase
-// Then: import { initializeApp } from 'firebase/app'; etc.
-export const db = null as any;
-export const firebaseAuth = null as any;
+// Then initialize with initializeApp(firebaseConfig) and export db + firebaseAuth.
+export const db: null = null;
+export const firebaseAuth: null = null;
