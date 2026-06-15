@@ -14,7 +14,7 @@
     "setupFiles": [
       "./jest.setup.js"
     ],
-    "setupFilesAfterFramework": ["@testing-library/react-native/extend-expect"],
+    "setupFilesAfterEnv": ["@testing-library/react-native/extend-expect"],
     "transformIgnorePatterns": [
       "/node_modules/(?!(.pnpm|react-native|@react-native|@react-native-community|expo|@expo|react-navigation|@react-navigation|react-native-maps|@react-three|three))",
       "/node_modules/react-native-reanimated/plugin/"
