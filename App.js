@@ -1,33 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// App.js
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import TabNavigator from './src/tabs';
 import Landing from './src/landing/Landing';
+import useAuth from './src/hooks/useAuth';
 
 export default function App() {
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    AsyncStorage.getItem('token')
-      .then(stored => setToken(stored))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const handleSignOut = () => {
-    AsyncStorage.removeItem('token').then(() => setToken(null));
-  };
+  const { user, loading, login, createAccount, logout } = useAuth();
 
   if (loading) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer>
-        {token ? (
-          <TabNavigator signout={handleSignOut} />
+        {user ? (
+          <TabNavigator signout={logout} />
         ) : (
-          <Landing setToken={setToken} />
+          <Landing login={login} createAccount={createAccount} />
         )}
       </NavigationContainer>
     </GestureHandlerRootView>
