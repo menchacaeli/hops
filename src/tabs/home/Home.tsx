@@ -7,12 +7,9 @@ import ListIcon from '../../components/ListIcon';
 import ListThumbnailSquare from '../../components/ListThumbnailSquare';
 import ListThumbnail from '../../components/ListThumbnail';
 import { Card, Spinner } from '../../components/ui';
-import { put } from '../../lib/fetchRequests';
-import useDataFetch from '../../hooks/useDataFetch';
+import useUserFavorites from '../../hooks/useUserFavorites';
 import useModal from '../../hooks/useModal';
-
-type Beer = { id: number; name: string; brewery: string; abv: number; ibu: number; description: string; image: string; rating: number; isFavorite: boolean; };
-type Brewery = { id: number; name: string; address: string; phone: string; image: string; rating: number; isFavorite: boolean; };
+import type { Beer, Brewery } from '../../data';
 
 const MENU_ITEMS = [
   { text: 'Upcoming Events & Releases', icon: 'calendar-alt', stack: 'Upcoming Events & Releases' },
@@ -20,27 +17,26 @@ const MENU_ITEMS = [
   { text: 'Top Rated Breweries', icon: 'warehouse', stack: 'Top Rated Breweries' },
 ];
 
-type Props = { navigation: NavigationProp<Record<string, undefined>>; };
+type Props = { navigation: NavigationProp<Record<string, undefined>> };
 
 const Home = ({ navigation }: Props) => {
-  const { data: favoriteBeers, loading: loadingBeers, load: loadFavoriteBeers } = useDataFetch<Beer>('api/beers/favorites');
-  const { data: favoriteBreweries, loading: loadingBreweries, load: loadFavoriteBreweries } = useDataFetch<Brewery>('api/breweries/favorites');
+  const { favoriteBeers, favoriteBreweries, loading, load, removeBeerFavorite, removeBreweryFavorite } = useUserFavorites();
   const { modalState: beerModal, openModal: openBeerModal, closeModal: closeBeerModal } = useModal();
   const { modalState: breweryModal, openModal: openBreweryModal, closeModal: closeBreweryModal } = useModal();
 
-  useFocusEffect(
-    useCallback(() => {
-      loadFavoriteBeers();
-      loadFavoriteBreweries();
-    }, [loadFavoriteBeers, loadFavoriteBreweries]),
-  );
+  useFocusEffect(useCallback(() => { load(); }, [load]));
 
-  const onRemoveFromFavoritePress = (id: number, type: 'beers' | 'breweries') => {
-    put(`api/${type}/${id}`, null, { isFavorite: false }).then(() => {
-      if (type === 'beers') { loadFavoriteBeers(); closeBeerModal(); }
-      else { loadFavoriteBreweries(); closeBreweryModal(); }
-    });
-  };
+  const onRemoveBeerFavorite = useCallback(async (id: string) => {
+    await removeBeerFavorite(id);
+    load();
+    closeBeerModal();
+  }, [removeBeerFavorite, load, closeBeerModal]);
+
+  const onRemoveBreweryFavorite = useCallback(async (id: string) => {
+    await removeBreweryFavorite(id);
+    load();
+    closeBreweryModal();
+  }, [removeBreweryFavorite, load, closeBreweryModal]);
 
   const renderMenuItem = useCallback(({ item }: { item: typeof MENU_ITEMS[0] }) => (
     <ListIcon text={item.text} icon={item.icon} stack={item.stack} navigation={navigation} />
@@ -49,18 +45,16 @@ const Home = ({ navigation }: Props) => {
   const renderFavBeer = useCallback(({ item }: { item: Beer }) => (
     <ListThumbnailSquare
       text={item.name} subtext={item.description} image={item.image} rating={item.rating} isReadOnly={true}
-      onPress={() => openBeerModal({ beerId: item.id, header: item.name, subtext: item.brewery, stats: `ABV: ${item.abv} IBUs: ${item.ibu}`, description: item.description, image: item.image, rating: item.rating, isFavorite: item.isFavorite })}
+      onPress={() => openBeerModal({ beerId: item.id, header: item.name, subtext: item.breweryId, stats: `ABV: ${item.abv} IBUs: ${item.ibu}`, description: item.description, image: item.image, rating: item.rating, isFavorite: true })}
     />
   ), [openBeerModal]);
 
   const renderFavBrewery = useCallback(({ item }: { item: Brewery }) => (
     <ListThumbnail
       text={item.name} subtext={item.address} image={item.image} rating={item.rating} isReadOnly={true}
-      onPress={() => openBreweryModal({ breweryId: item.id, header: item.name, address: item.address, phone: item.phone, image: item.image, rating: item.rating, isFavorite: item.isFavorite })}
+      onPress={() => openBreweryModal({ breweryId: item.id, header: item.name, address: item.address, phone: item.phone, image: item.image, rating: item.rating, isFavorite: true })}
     />
   ), [openBreweryModal]);
-
-  const loading = loadingBeers || loadingBreweries;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -70,24 +64,26 @@ const Home = ({ navigation }: Props) => {
       <Card style={styles.card}>
         <Text style={styles.cardHeader}>Favorite Beers</Text>
         {loading ? <Spinner /> : (
-          <FlatList data={favoriteBeers} keyExtractor={item => String(item.id)} renderItem={renderFavBeer} scrollEnabled={false} />
+          <FlatList data={favoriteBeers} keyExtractor={item => item.id} renderItem={renderFavBeer} scrollEnabled={false} />
         )}
       </Card>
       <Card style={styles.card}>
         <Text style={styles.cardHeader}>Favorite Breweries</Text>
         {loading ? <Spinner /> : (
-          <FlatList data={favoriteBreweries} keyExtractor={item => String(item.id)} renderItem={renderFavBrewery} scrollEnabled={false} />
+          <FlatList data={favoriteBreweries} keyExtractor={item => item.id} renderItem={renderFavBrewery} scrollEnabled={false} />
         )}
       </Card>
       <BeerModal
-        visible={!!beerModal.visible} header={String(beerModal.header ?? '')} subtext={String(beerModal.subtext ?? '')} stats={String(beerModal.stats ?? '')} description={String(beerModal.description ?? '')} image={String(beerModal.image ?? '')} rating={Number(beerModal.rating ?? 0)} isFavorite={Boolean(beerModal.isFavorite)}
-        isReadOnly={true} hasAddRemoveButton={false} closeModal={closeBeerModal}
-        removeFromFavorites={() => onRemoveFromFavoritePress(Number(beerModal.beerId), 'beers')}
+        visible={!!beerModal.visible} header={String(beerModal.header ?? '')} subtext={String(beerModal.subtext ?? '')}
+        stats={String(beerModal.stats ?? '')} description={String(beerModal.description ?? '')} image={String(beerModal.image ?? '')}
+        rating={Number(beerModal.rating ?? 0)} isFavorite={true} isReadOnly={true} hasAddRemoveButton={false}
+        closeModal={closeBeerModal} removeFromFavorites={() => onRemoveBeerFavorite(String(beerModal.beerId))}
       />
       <BreweryModal
-        visible={!!breweryModal.visible} header={String(breweryModal.header ?? '')} address={String(breweryModal.address ?? '')} phone={String(breweryModal.phone ?? '')} image={String(breweryModal.image ?? '')} rating={Number(breweryModal.rating ?? 0)} isFavorite={Boolean(breweryModal.isFavorite)}
-        isReadOnly={true} closeModal={closeBreweryModal}
-        removeFromFavorites={() => onRemoveFromFavoritePress(Number(breweryModal.breweryId), 'breweries')}
+        visible={!!breweryModal.visible} header={String(breweryModal.header ?? '')} address={String(breweryModal.address ?? '')}
+        phone={String(breweryModal.phone ?? '')} image={String(breweryModal.image ?? '')}
+        rating={Number(breweryModal.rating ?? 0)} isFavorite={true} isReadOnly={true}
+        closeModal={closeBreweryModal} removeFromFavorites={() => onRemoveBreweryFavorite(String(breweryModal.breweryId))}
       />
     </ScrollView>
   );
