@@ -14,6 +14,7 @@ export function getCurrentUser(): User | null {
 
 export async function login(email: string, password: string): Promise<AuthResult> {
   if (USE_MOCK) {
+    // Mock mode always returns the dev user regardless of credentials
     const user = mockUsers.find(u => u.uid === MOCK_CURRENT_USER_UID) ?? mockUsers[0];
     _currentUser = user;
     return { status: 'success', user };

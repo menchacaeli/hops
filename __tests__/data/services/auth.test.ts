@@ -1,8 +1,8 @@
 // __tests__/data/services/auth.test.ts
 import { login, createAccount, logout, getCurrentUser } from '../../../src/data/services/auth';
 
-beforeEach(() => {
-  logout();
+beforeEach(async () => {
+  await logout();
 });
 
 describe('auth service (mock)', () => {
