@@ -4,38 +4,31 @@ import { useFocusEffect } from '@react-navigation/native';
 import BreweryModal from '../../components/BreweryModal';
 import ListThumbnail from '../../components/ListThumbnail';
 import { Spinner } from '../../components/ui';
-import { put } from '../../lib/fetchRequests';
-import useDataFetch from '../../hooks/useDataFetch';
+import { updateBrewery } from '../../data';
+import useBreweries from '../../hooks/useBreweries';
+import useUserFavorites from '../../hooks/useUserFavorites';
 import useModal from '../../hooks/useModal';
-
-type Brewery = {
-  id: number;
-  name: string;
-  address: string;
-  phone: string;
-  image: string;
-  rating: number;
-  isFavorite: boolean;
-};
+import type { Brewery } from '../../data';
 
 const Breweries = () => {
-  const { data: breweries, loading, load: loadBreweries } = useDataFetch<Brewery>('api/breweries');
+  const { breweries, loading, load: loadBreweries } = useBreweries();
+  const { isBreweryFavorite, addBreweryFavorite, load: loadFavorites } = useUserFavorites();
   const { modalState: breweryModal, openModal, closeModal } = useModal();
 
   useFocusEffect(
-    useCallback(() => { loadBreweries(); }, [loadBreweries]),
+    useCallback(() => { loadBreweries(); loadFavorites(); }, [loadBreweries, loadFavorites]),
   );
 
-  const onStarRatingPress = useCallback((rating: number, id: number) => {
-    put(`api/breweries/${id}`, null, { rating }).then(() => loadBreweries());
+  const onStarRatingPress = useCallback(async (rating: number, id: string) => {
+    await updateBrewery(id, { rating });
+    loadBreweries();
   }, [loadBreweries]);
 
-  const onAddToFavoritePress = useCallback((id: number) => {
-    put(`api/breweries/${id}`, null, { isFavorite: true }).then(() => {
-      loadBreweries();
-      closeModal();
-    });
-  }, [loadBreweries, closeModal]);
+  const onAddToFavoritePress = useCallback(async (id: string) => {
+    await addBreweryFavorite(id);
+    loadFavorites();
+    closeModal();
+  }, [addBreweryFavorite, loadFavorites, closeModal]);
 
   const handleItemPress = useCallback((item: Brewery) => {
     openModal({
@@ -45,9 +38,9 @@ const Breweries = () => {
       phone: item.phone,
       image: item.image,
       rating: item.rating,
-      isFavorite: item.isFavorite,
+      isFavorite: isBreweryFavorite(item.id),
     });
-  }, [openModal]);
+  }, [openModal, isBreweryFavorite]);
 
   const renderItem = useCallback(({ item }: { item: Brewery }) => (
     <ListThumbnail
@@ -61,15 +54,11 @@ const Breweries = () => {
     />
   ), [handleItemPress, onStarRatingPress]);
 
-  const keyExtractor = useCallback((item: Brewery) => String(item.id), []);
+  const keyExtractor = useCallback((item: Brewery) => item.id, []);
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f6fbf7' }}>
-      {loading ? (
-        <Spinner />
-      ) : (
-        <FlatList data={breweries} keyExtractor={keyExtractor} renderItem={renderItem} />
-      )}
+      {loading ? <Spinner /> : <FlatList data={breweries} keyExtractor={keyExtractor} renderItem={renderItem} />}
       <BreweryModal
         visible={!!breweryModal.visible}
         header={String(breweryModal.header ?? '')}
@@ -80,7 +69,7 @@ const Breweries = () => {
         isFavorite={Boolean(breweryModal.isFavorite)}
         isReadOnly={false}
         closeModal={closeModal}
-        addToFavorites={() => onAddToFavoritePress(Number(breweryModal.breweryId))}
+        addToFavorites={() => onAddToFavoritePress(String(breweryModal.breweryId))}
       />
     </View>
   );

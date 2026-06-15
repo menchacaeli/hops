@@ -4,28 +4,15 @@ import { useFocusEffect } from '@react-navigation/native';
 import BreweryModal from '../../../components/BreweryModal';
 import ListThumbnail from '../../../components/ListThumbnail';
 import { Spinner } from '../../../components/ui';
-import useDataFetch from '../../../hooks/useDataFetch';
+import useBreweries from '../../../hooks/useBreweries';
 import useModal from '../../../hooks/useModal';
-
-type Brewery = {
-  id: number;
-  name: string;
-  address: string;
-  phone: string;
-  image: string;
-  rating: number;
-  isFavorite: boolean;
-};
+import type { Brewery } from '../../../data';
 
 const TopRatedBreweries = () => {
-  const { data: breweries, loading, load: loadBreweries } = useDataFetch<Brewery>('api/breweries/toprated');
+  const { breweries, loading, load: loadBreweries } = useBreweries();
   const { modalState: breweryModal, openModal, closeModal } = useModal();
 
-  useFocusEffect(
-    useCallback(() => {
-      loadBreweries();
-    }, [loadBreweries]),
-  );
+  useFocusEffect(useCallback(() => { loadBreweries(); }, [loadBreweries]));
 
   const handleItemPress = useCallback((item: Brewery) => {
     openModal({
@@ -35,7 +22,7 @@ const TopRatedBreweries = () => {
       phone: item.phone,
       image: item.image,
       rating: item.rating,
-      isFavorite: item.isFavorite,
+      isFavorite: false,
     });
   }, [openModal]);
 
@@ -50,19 +37,12 @@ const TopRatedBreweries = () => {
     />
   ), [handleItemPress]);
 
-  const keyExtractor = useCallback((item: Brewery) => String(item.id), []);
+  const topRated = breweries.filter(b => b.rating >= 3);
+  const keyExtractor = useCallback((item: Brewery) => item.id, []);
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f6fbf7' }}>
-      {loading ? (
-        <Spinner />
-      ) : (
-        <FlatList
-          data={breweries}
-          keyExtractor={keyExtractor}
-          renderItem={renderItem}
-        />
-      )}
+      {loading ? <Spinner /> : <FlatList data={topRated} keyExtractor={keyExtractor} renderItem={renderItem} />}
       <BreweryModal
         visible={!!breweryModal.visible}
         header={String(breweryModal.header ?? '')}
@@ -70,7 +50,7 @@ const TopRatedBreweries = () => {
         phone={String(breweryModal.phone ?? '')}
         image={String(breweryModal.image ?? '')}
         rating={Number(breweryModal.rating ?? 0)}
-        isFavorite={Boolean(breweryModal.isFavorite)}
+        isFavorite={false}
         isReadOnly={true}
         closeModal={closeModal}
       />
