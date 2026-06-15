@@ -26,6 +26,11 @@ const Landing = ({ setToken }: Props) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const devBypass = () => {
+    const fakeToken = 'dev-bypass-token';
+    AsyncStorage.setItem('token', fakeToken).then(() => setToken(fakeToken));
+  };
+
   const setUser = (user: { email: string; password: string }) => {
     post('auth/signin', user)
       .then(response => {
@@ -65,6 +70,11 @@ const Landing = ({ setToken }: Props) => {
                 onPress={() => setAccount(true)}>
                 <Text style={styles.buttonFilledText}>create account</Text>
               </TouchableOpacity>
+              {__DEV__ ? (
+                <TouchableOpacity style={styles.devButton} onPress={devBypass}>
+                  <Text style={styles.devButtonText}>⚡ skip login (dev)</Text>
+                </TouchableOpacity>
+              ) : null}
             </>
           ) : null}
         </View>
@@ -115,6 +125,15 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  devButton: {
+    marginTop: 32,
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  devButtonText: {
+    color: '#aaa',
+    fontSize: 13,
   },
 });
 
