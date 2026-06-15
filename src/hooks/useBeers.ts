@@ -9,8 +9,11 @@ const useBeers = () => {
 
   const load = useCallback(async () => {
     setLoading(true);
-    setBeers(await getBeers());
-    setLoading(false);
+    try {
+      setBeers(await getBeers());
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   return { beers, loading, load };

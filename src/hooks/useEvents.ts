@@ -9,8 +9,11 @@ const useEvents = () => {
 
   const load = useCallback(async () => {
     setLoading(true);
-    setEvents(await getEvents());
-    setLoading(false);
+    try {
+      setEvents(await getEvents());
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   return { events, loading, load };

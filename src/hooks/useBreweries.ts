@@ -9,8 +9,11 @@ const useBreweries = () => {
 
   const load = useCallback(async () => {
     setLoading(true);
-    setBreweries(await getBreweries());
-    setLoading(false);
+    try {
+      setBreweries(await getBreweries());
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   return { breweries, loading, load };

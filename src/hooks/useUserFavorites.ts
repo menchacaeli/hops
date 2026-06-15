@@ -14,10 +14,13 @@ const useUserFavorites = () => {
     const uid = getUid();
     if (!uid) return;
     setLoading(true);
-    const [beers, breweries] = await Promise.all([getFavoriteBeers(uid), getFavoriteBreweries(uid)]);
-    setFavoriteBeers(beers);
-    setFavoriteBreweries(breweries);
-    setLoading(false);
+    try {
+      const [beers, breweries] = await Promise.all([getFavoriteBeers(uid), getFavoriteBreweries(uid)]);
+      setFavoriteBeers(beers);
+      setFavoriteBreweries(breweries);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const isBeerFavorite = useCallback((beerId: string) =>
