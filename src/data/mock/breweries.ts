@@ -36,6 +36,6 @@ export const mockBreweries: Brewery[] = [
     phone: '(505) 424-3333',
     image: '',
     rating: 3,
-    location: { latitude: 35.5937, longitude: -106.0122 },
+    location: { latitude: 35.633, longitude: -105.970 },
   },
 ];
