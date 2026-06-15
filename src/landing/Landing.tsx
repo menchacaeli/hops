@@ -1,17 +1,18 @@
+// src/landing/Landing.tsx
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, View, ScrollView, TouchableOpacity, Text } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Login from '../login/Login';
 import Account from '../account/CreateAccount';
-import { post } from '../lib/fetchRequests';
+import type { AuthResult } from '../data';
 
 type Props = {
-  setToken: (token: string) => void;
+  login: (email: string, password: string) => Promise<AuthResult>;
+  createAccount: (email: string, password: string, displayName?: string) => Promise<AuthResult>;
 };
 
-const Landing = ({ setToken }: Props) => {
-  const [login, setLogin] = useState(false);
-  const [account, setAccount] = useState(false);
+const Landing = ({ login, createAccount }: Props) => {
+  const [showLogin, setShowLogin] = useState(false);
+  const [showAccount, setShowAccount] = useState(false);
   const opacityRef = useRef(new Animated.Value(0));
   const opacity = opacityRef.current;
 
@@ -26,27 +27,6 @@ const Landing = ({ setToken }: Props) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const devBypass = () => {
-    const fakeToken = 'dev-bypass-token';
-    AsyncStorage.setItem('token', fakeToken).then(() => setToken(fakeToken));
-  };
-
-  const setUser = (user: { email: string; password: string }) => {
-    post('auth/signin', user)
-      .then(response => {
-        if (response.status === 'success') {
-          const data = response.data as { user?: { _id?: string } };
-          const token = data?.user?._id;
-          if (token) {
-            AsyncStorage.setItem('token', token)
-              .then(() => setToken(token))
-              .catch(error => console.log({ asyncStorageError: error }));
-          }
-        }
-      })
-      .catch(err => console.log({ err }));
-  };
-
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
@@ -56,22 +36,18 @@ const Landing = ({ setToken }: Props) => {
           </Animated.View>
         </View>
         <View>
-          {login ? <Login setUser={setUser} /> : null}
-          {account ? <Account setUser={setUser} /> : null}
-          {!login && !account ? (
+          {showLogin ? <Login login={login} /> : null}
+          {showAccount ? <Account createAccount={createAccount} /> : null}
+          {!showLogin && !showAccount ? (
             <>
-              <TouchableOpacity
-                style={[styles.button, styles.buttonOutline]}
-                onPress={() => setLogin(true)}>
+              <TouchableOpacity style={[styles.button, styles.buttonOutline]} onPress={() => setShowLogin(true)}>
                 <Text style={styles.buttonOutlineText}>login</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, styles.buttonFilled]}
-                onPress={() => setAccount(true)}>
+              <TouchableOpacity style={[styles.button, styles.buttonFilled]} onPress={() => setShowAccount(true)}>
                 <Text style={styles.buttonFilledText}>create account</Text>
               </TouchableOpacity>
               {__DEV__ ? (
-                <TouchableOpacity style={styles.devButton} onPress={devBypass}>
+                <TouchableOpacity style={styles.devButton} onPress={() => login('dev@hops.com', 'password')}>
                   <Text style={styles.devButtonText}>⚡ skip login (dev)</Text>
                 </TouchableOpacity>
               ) : null}
@@ -84,57 +60,17 @@ const Landing = ({ setToken }: Props) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f6fbf7',
-  },
-  content: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  boxContainer: {
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  hops: {
-    fontSize: 60,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#71bc78',
-  },
-  button: {
-    borderRadius: 24,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  buttonOutline: {
-    borderWidth: 2,
-    borderColor: '#71bc78',
-  },
-  buttonOutlineText: {
-    color: '#71bc78',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  buttonFilled: {
-    backgroundColor: '#71bc78',
-  },
-  buttonFilledText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  devButton: {
-    marginTop: 32,
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  devButtonText: {
-    color: '#aaa',
-    fontSize: 13,
-  },
+  container: { flex: 1, backgroundColor: '#f6fbf7' },
+  content: { flexGrow: 1, justifyContent: 'center', padding: 20 },
+  boxContainer: { alignItems: 'center', marginBottom: 32 },
+  hops: { fontSize: 60, fontWeight: 'bold', textAlign: 'center', color: '#71bc78' },
+  button: { borderRadius: 24, paddingVertical: 14, alignItems: 'center', marginTop: 20 },
+  buttonOutline: { borderWidth: 2, borderColor: '#71bc78' },
+  buttonOutlineText: { color: '#71bc78', fontSize: 16, fontWeight: '600' },
+  buttonFilled: { backgroundColor: '#71bc78' },
+  buttonFilledText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  devButton: { marginTop: 32, alignItems: 'center', paddingVertical: 8 },
+  devButtonText: { color: '#aaa', fontSize: 13 },
 });
 
 export default Landing;
