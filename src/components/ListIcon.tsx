@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View, Text } from 'react-native';
+import { TouchableOpacity, View, Text } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { NavigationProp } from '@react-navigation/native';
+import { useColorScheme } from 'react-native';
 
 type Props = {
   text: string;
@@ -11,46 +12,24 @@ type Props = {
 };
 
 const ListIcon = ({ text, icon, stack, navigation }: Props) => {
+  const scheme = useColorScheme();
+  const iconColor = scheme === 'dark' ? '#4ADE80' : '#166534';
+  const chevronColor = scheme === 'dark' ? '#F59E0B' : '#FCD34D';
+
   return (
-    <TouchableOpacity style={styles.row} onPress={() => navigation.navigate(stack)}>
-      <View style={styles.left}>
-        <FontAwesome5 name={icon} size={18} color="#71bc78" />
+    <TouchableOpacity
+      className="flex-row items-center py-4 px-4 bg-white dark:bg-[#1A140A] border-b border-amber-100 dark:border-[#2E2010]"
+      onPress={() => navigation.navigate(stack)}
+    >
+      <View className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-[#261C0E] items-center justify-center">
+        <FontAwesome5 name={icon} size={18} color={iconColor} />
       </View>
-      <View style={styles.body}>
-        <Text style={styles.text}>{text}</Text>
-      </View>
-      <View style={styles.right}>
-        <FontAwesome5 name="chevron-right" size={14} color="#919c92" />
-      </View>
+      <Text className="flex-1 ml-3 text-stone-900 dark:text-amber-50 font-medium text-base">
+        {text}
+      </Text>
+      <FontAwesome5 name="chevron-right" size={14} color={chevronColor} />
     </TouchableOpacity>
   );
 };
-
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e0e0e0',
-    backgroundColor: '#fff',
-  },
-  left: {
-    width: 36,
-    alignItems: 'center',
-  },
-  body: {
-    flex: 1,
-    paddingHorizontal: 8,
-  },
-  right: {
-    width: 24,
-    alignItems: 'center',
-  },
-  text: {
-    fontSize: 15,
-  },
-});
 
 export default ListIcon;
