@@ -32,6 +32,24 @@ export type EventItem = {
   date: string; // ISO string; Firebase service layer must convert Firestore Timestamp → toDate().toISOString()
 };
 
+export type FoodTruck = {
+  id: string;
+  name: string;
+  image: string;
+  website: string;
+  description: string;
+};
+
+export type FoodTruckStop = {
+  id: string;
+  foodTruckId: string;
+  breweryId: string;
+  startAt: string; // ISO string
+  endAt: string; // ISO string
+  notes: string;
+  sourceUrl: string;
+};
+
 export type User = {
   uid: string;
   email: string;

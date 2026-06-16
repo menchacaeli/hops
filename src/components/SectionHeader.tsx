@@ -7,10 +7,11 @@ type Props = {
 
 export default function SectionHeader({ label }: Props) {
   return (
-    <View className="bg-amber-50 dark:bg-[#1A140A] border-l-4 border-green-800 dark:border-amber-500 pl-4 py-2">
-      <Text className="text-green-800 dark:text-amber-400 font-bold text-xs tracking-widest uppercase">
+    <View className="mb-2 px-1">
+      <Text className="text-atelier-text-muted dark:text-atelier-text-muted-dark font-bold text-xs tracking-widest uppercase mb-1">
         {label}
       </Text>
+      <View className="h-px bg-atelier-separator dark:bg-atelier-separator-dark" />
     </View>
   );
 }

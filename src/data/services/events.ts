@@ -1,21 +1,54 @@
 // src/data/services/events.ts
 import { USE_MOCK } from '../config';
+import {
+  createDoc,
+  deleteDocById,
+  listCollection,
+  listWhereEq,
+  updateDocById,
+} from '../firestoreClient';
 import { mockEvents } from '../mock/events';
 import type { EventItem } from '../models';
 
+type EventFirestoreRecord = Omit<EventItem, 'date'> & {
+  date: unknown;
+};
+
+function toIsoDate(value: unknown): string {
+  if (typeof value === 'string') {
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? value : parsed.toISOString();
+  }
+
+  if (
+    typeof value === 'object' &&
+    value !== null &&
+    'toDate' in value &&
+    typeof (value as { toDate: () => Date }).toDate === 'function'
+  ) {
+    return (value as { toDate: () => Date }).toDate().toISOString();
+  }
+
+  return '';
+}
+
+function mapEventRecord(record: EventFirestoreRecord): EventItem {
+  return {
+    ...record,
+    date: toIsoDate(record.date),
+  };
+}
+
 export async function getEvents(): Promise<EventItem[]> {
   if (USE_MOCK) return [...mockEvents];
-  // const snap = await getDocs(collection(db, 'events'));
-  // return snap.docs.map(d => ({ id: d.id, ...d.data() } as EventItem));
-  return [];
+  const records = await listCollection<EventFirestoreRecord>('events');
+  return records.map(mapEventRecord);
 }
 
 export async function getEventsByBrewery(breweryId: string): Promise<EventItem[]> {
   if (USE_MOCK) return mockEvents.filter(e => e.breweryId === breweryId);
-  // const q = query(collection(db, 'events'), where('breweryId', '==', breweryId));
-  // const snap = await getDocs(q);
-  // return snap.docs.map(d => ({ id: d.id, ...d.data() } as EventItem));
-  return [];
+  const records = await listWhereEq<EventFirestoreRecord>('events', 'breweryId', breweryId);
+  return records.map(mapEventRecord);
 }
 
 export async function createEvent(event: Omit<EventItem, 'id'>): Promise<EventItem> {
@@ -24,9 +57,11 @@ export async function createEvent(event: Omit<EventItem, 'id'>): Promise<EventIt
     mockEvents.push(newEvent);
     return newEvent;
   }
-  // const ref = await addDoc(collection(db, 'events'), event);
-  // return { id: ref.id, ...event };
-  throw new Error('Firebase not configured');
+  const payload: Omit<EventItem, 'id'> = {
+    ...event,
+    date: toIsoDate(event.date),
+  };
+  return createDoc<EventItem>('events', payload);
 }
 
 export async function updateEvent(id: string, updates: Partial<EventItem>): Promise<void> {
@@ -35,7 +70,9 @@ export async function updateEvent(id: string, updates: Partial<EventItem>): Prom
     if (idx !== -1) Object.assign(mockEvents[idx], updates);
     return;
   }
-  // await updateDoc(doc(db, 'events', id), updates);
+  const nextUpdates: Partial<EventItem> = { ...updates };
+  if (updates.date) nextUpdates.date = toIsoDate(updates.date);
+  await updateDocById<EventItem>('events', id, nextUpdates);
 }
 
 export async function deleteEvent(id: string): Promise<void> {
@@ -44,5 +81,5 @@ export async function deleteEvent(id: string): Promise<void> {
     if (idx !== -1) mockEvents.splice(idx, 1);
     return;
   }
-  // await deleteDoc(doc(db, 'events', id));
+  await deleteDocById('events', id);
 }

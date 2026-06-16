@@ -5,3 +5,5 @@ export * from './services/beers';
 export * from './services/breweries';
 export * from './services/user';
 export * from './services/events';
+export * from './services/foodTrucks';
+export * from './ingestion';

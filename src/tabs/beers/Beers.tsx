@@ -1,32 +1,33 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { FlatList, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import BeerModal from '../../components/BeerModal';
 import SectionHeader from '../../components/SectionHeader';
 import ListThumbnailSquare from '../../components/ListThumbnailSquare';
-import { Spinner } from '../../components/ui';
+import { Card, ListEmptyState, Screen, Spinner } from '../../components/ui';
 import { updateBeer } from '../../data';
 import useBeers from '../../hooks/useBeers';
+import useBreweries from '../../hooks/useBreweries';
 import useUserFavorites from '../../hooks/useUserFavorites';
 import useModal from '../../hooks/useModal';
+import { tabContentInset } from '../../styles/layout';
 import type { Beer } from '../../data';
 
-const BREWERY_SECTIONS = [
-  { label: 'BOSQUE BREWING CO.', id: 'bosque' },
-  { label: 'LA CUMBRE BREWING CO.', id: 'la-cumbre' },
-  { label: 'MARBLE BREWING', id: 'marble' },
-  { label: 'SANTA FE BREWERY CO.', id: 'santa-fe' },
-];
+type BrewerySection = {
+  breweryId: string;
+  label: string;
+  beers: Beer[];
+};
 
 const BeerList = React.memo(function BeerList({
-  beers, breweryId, onItemPress, onStarRatingPress,
+  beers,
+  onItemPress,
+  onStarRatingPress,
 }: {
   beers: Beer[];
-  breweryId: string;
   onItemPress: (item: Beer) => void;
   onStarRatingPress: (rating: number, id: string) => void;
 }) {
-  const filtered = beers.filter(x => x.breweryId === breweryId);
   const renderItem = useCallback(({ item }: { item: Beer }) => (
     <ListThumbnailSquare
       text={item.name}
@@ -39,17 +40,44 @@ const BeerList = React.memo(function BeerList({
     />
   ), [onItemPress, onStarRatingPress]);
   const keyExtractor = useCallback((item: Beer) => item.id, []);
-  return <FlatList data={filtered} keyExtractor={keyExtractor} renderItem={renderItem} scrollEnabled={false} />;
+  return (
+    <FlatList
+      data={beers}
+      keyExtractor={keyExtractor}
+      renderItem={renderItem}
+      scrollEnabled={false}
+      ListEmptyComponent={<ListEmptyState label="No beers available yet." />}
+    />
+  );
 });
 
 const Beers = () => {
-  const { beers, loading, load: loadBeers } = useBeers();
+  const { beers, loading: beersLoading, load: loadBeers } = useBeers();
+  const { breweries, loading: breweriesLoading, load: loadBreweries } = useBreweries();
   const { isBeerFavorite, addBeerFavorite, load: loadFavorites } = useUserFavorites();
   const { modalState: beerModal, openModal, closeModal } = useModal();
 
   useFocusEffect(
-    useCallback(() => { loadBeers(); loadFavorites(); }, [loadBeers, loadFavorites]),
+    useCallback(() => {
+      loadBeers();
+      loadBreweries();
+      loadFavorites();
+    }, [loadBeers, loadBreweries, loadFavorites]),
   );
+
+  const loading = beersLoading || breweriesLoading;
+
+  const sections = useMemo<BrewerySection[]>(() => {
+    const breweryIdSet = [...new Set(beers.map(b => b.breweryId).filter(Boolean))].sort();
+    return breweryIdSet.map(breweryId => {
+      const name = breweries.find(b => b.id === breweryId)?.name ?? breweryId ?? '';
+      return {
+        breweryId,
+        label: name.toUpperCase(),
+        beers: beers.filter(b => b.breweryId === breweryId),
+      };
+    });
+  }, [beers, breweries]);
 
   const onStarRatingPress = useCallback(async (rating: number, id: string) => {
     await updateBeer(id, { rating });
@@ -75,25 +103,32 @@ const Beers = () => {
     });
   }, [openModal, isBeerFavorite]);
 
+  const renderSection = useCallback(({ item: section }: { item: BrewerySection }) => (
+    <View className="mb-4">
+      <SectionHeader label={section.label} />
+      <Card className="p-0 overflow-hidden">
+        <BeerList
+          beers={section.beers}
+          onItemPress={handleItemPress}
+          onStarRatingPress={onStarRatingPress}
+        />
+      </Card>
+    </View>
+  ), [handleItemPress, onStarRatingPress]);
+
+  const keyExtractor = useCallback((s: BrewerySection) => s.breweryId, []);
+
   return (
-    <View className="flex-1 bg-amber-50 dark:bg-[#0C0A06]">
+    <Screen>
       {loading ? (
         <Spinner />
       ) : (
         <FlatList
-          data={BREWERY_SECTIONS}
-          keyExtractor={s => s.id}
-          renderItem={({ item: section }) => (
-            <View>
-              <SectionHeader label={section.label} />
-              <BeerList
-                beers={beers}
-                breweryId={section.id}
-                onItemPress={handleItemPress}
-                onStarRatingPress={onStarRatingPress}
-              />
-            </View>
-          )}
+          data={sections}
+          keyExtractor={keyExtractor}
+          contentContainerStyle={tabContentInset}
+          renderItem={renderSection}
+          ListEmptyComponent={<ListEmptyState label="No beers found. Run ingestion from Profile." />}
         />
       )}
       <BeerModal
@@ -110,7 +145,7 @@ const Beers = () => {
         closeModal={closeModal}
         addToFavorites={() => onAddToFavoritePress(String(beerModal.beerId))}
       />
-    </View>
+    </Screen>
   );
 };
 

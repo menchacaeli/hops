@@ -12,18 +12,18 @@ type Props = {
 
 const ListIcon = ({ text, icon, stack, navigation }: Props) => {
   const scheme = useColorScheme();
-  const iconColor = scheme === 'dark' ? '#4ADE80' : '#166534';
-  const chevronColor = scheme === 'dark' ? '#F59E0B' : '#FBBF24';
+  const iconColor = scheme === 'dark' ? '#3E7E62' : '#3E7E62';
+  const chevronColor = scheme === 'dark' ? '#C8872C' : '#A56E20';
 
   return (
     <TouchableOpacity
-      className="flex-row items-center py-4 px-4 bg-white dark:bg-[#1A140A] border-b border-amber-100 dark:border-[#2E2010]"
+      className="flex-row items-center py-4 px-4 bg-transparent border-b border-atelier-separator dark:border-atelier-separator-dark"
       onPress={() => navigation.navigate(stack)}
     >
-      <View className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-[#261C0E] items-center justify-center">
+      <View className="w-9 h-9 rounded-xl bg-atelier-bg-elevated dark:bg-atelier-bg-elevated-dark items-center justify-center">
         <FontAwesome5 name={icon} size={18} color={iconColor} />
       </View>
-      <Text className="flex-1 ml-3 text-stone-900 dark:text-amber-50 font-medium text-base">
+      <Text className="flex-1 ml-3 text-atelier-text dark:text-atelier-text-inverse font-medium text-base">
         {text}
       </Text>
       <FontAwesome5 name="chevron-right" size={14} color={chevronColor} />

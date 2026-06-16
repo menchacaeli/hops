@@ -1,0 +1,22 @@
+export const theme = {
+  color: {
+    bg: '#F6F1E8',
+    bgElevated: '#EFE7DA',
+    bgDark: '#131110',
+    bgElevatedDark: '#1A1715',
+    text: '#1F1A16',
+    textMuted: '#5E554E',
+    textInverse: '#F7F3EE',
+    textMutedDark: '#C3B8AC',
+    accent: '#C8872C',
+    accentPressed: '#A56E20',
+    success: '#3E7E62',
+    danger: '#C84F4F',
+    glassLight: 'rgba(255,255,255,0.58)',
+    glassDark: 'rgba(22,20,18,0.50)',
+    borderLight: 'rgba(255,255,255,0.45)',
+    borderDark: 'rgba(255,255,255,0.14)',
+    separatorLight: 'rgba(255,255,255,0.35)',
+    separatorDark: 'rgba(255,255,255,0.10)',
+  },
+} as const;

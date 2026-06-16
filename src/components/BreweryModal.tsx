@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
 } from 'react-native';
-import StarRating from 'react-native-star-rating-widget';
+import { StarRatingDisplay } from 'react-native-star-rating-widget';
 
 type Props = {
   visible: boolean;
@@ -45,7 +45,7 @@ const BreweryModal = ({
         </TouchableWithoutFeedback>
         <View className="absolute bottom-0 left-0 right-0 h-[85%] bg-white dark:bg-[#1A140A] rounded-t-3xl overflow-hidden">
           <View className="w-full h-44 bg-amber-100 dark:bg-[#261C0E]">
-            <Image source={{ uri: image }} className="w-full h-full" resizeMode="cover" />
+            {image ? <Image source={{ uri: image }} className="w-full h-full" resizeMode="cover" /> : null}
           </View>
           <View className="items-center pt-3">
             <View className="w-10 h-1 bg-stone-300 dark:bg-[#2E2010] rounded-full" />
@@ -69,14 +69,12 @@ const BreweryModal = ({
             </View>
             <Text className="text-stone-500 dark:text-amber-200 text-sm mt-2">{phone}</Text>
             <View className="flex-row items-center mt-3">
-              <StarRating
-                disabled={isReadOnly}
+              <StarRatingDisplay
                 maxStars={5}
-                rating={rating}
+                rating={rating ?? 0}
                 starSize={18}
                 color="#FBBF24"
                 starStyle={{ paddingRight: 2 }}
-                onChange={() => {}}
               />
               <Text className="text-stone-500 dark:text-amber-200 text-xs ml-2">
                 {isReadOnly ? 'Rating' : 'Rate'}

@@ -3,11 +3,12 @@ import { FlatList, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import BreweryModal from '../../components/BreweryModal';
 import ListThumbnail from '../../components/ListThumbnail';
-import { Spinner } from '../../components/ui';
+import { Card, ListEmptyState, Screen, Spinner } from '../../components/ui';
 import { updateBrewery } from '../../data';
 import useBreweries from '../../hooks/useBreweries';
 import useUserFavorites from '../../hooks/useUserFavorites';
 import useModal from '../../hooks/useModal';
+import { tabContentInset } from '../../styles/layout';
 import type { Brewery } from '../../data';
 
 const Breweries = () => {
@@ -57,8 +58,19 @@ const Breweries = () => {
   const keyExtractor = useCallback((item: Brewery) => item.id, []);
 
   return (
-    <View className="flex-1 bg-amber-50 dark:bg-[#0C0A06]">
-      {loading ? <Spinner /> : <FlatList data={breweries} keyExtractor={keyExtractor} renderItem={renderItem} />}
+    <Screen>
+      {loading ? <Spinner /> : (
+        <View style={tabContentInset}>
+          <Card className="p-0 overflow-hidden">
+            <FlatList
+              data={breweries}
+              keyExtractor={keyExtractor}
+              renderItem={renderItem}
+              ListEmptyComponent={<ListEmptyState label="No breweries available yet." />}
+            />
+          </Card>
+        </View>
+      )}
       <BreweryModal
         visible={!!breweryModal.visible}
         header={String(breweryModal.header ?? '')}
@@ -71,7 +83,7 @@ const Breweries = () => {
         closeModal={closeModal}
         addToFavorites={() => onAddToFavoritePress(String(breweryModal.breweryId))}
       />
-    </View>
+    </Screen>
   );
 };
 

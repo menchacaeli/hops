@@ -1,5 +1,6 @@
 import React from 'react';
-import { View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
+import { BlurView } from 'expo-blur';
 
 type Props = {
   children: React.ReactNode;
@@ -8,7 +9,15 @@ type Props = {
 
 export default function Card({ children, className }: Props) {
   return (
-    <View className={['bg-white dark:bg-[#1A140A] rounded-2xl border border-amber-200 dark:border-[#2E2010] p-4', className].filter(Boolean).join(' ')}>
+    <View className={['rounded-2xl overflow-hidden border border-atelier-border dark:border-atelier-border-dark bg-atelier-surface dark:bg-atelier-surface-dark p-4', className].filter(Boolean).join(' ')}>
+      {Platform.OS === 'ios' ? (
+        <BlurView
+          pointerEvents="none"
+          tint="light"
+          intensity={26}
+          style={StyleSheet.absoluteFill}
+        />
+      ) : null}
       {children}
     </View>
   );

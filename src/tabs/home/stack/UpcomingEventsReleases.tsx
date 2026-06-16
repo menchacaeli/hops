@@ -4,9 +4,10 @@ import { format, parseISO } from 'date-fns';
 import { useFocusEffect } from '@react-navigation/native';
 import SectionHeader from '../../../components/SectionHeader';
 import EventModal from '../components/EventModal';
-import { Spinner } from '../../../components/ui';
+import { Card, ListEmptyState, Screen, Spinner } from '../../../components/ui';
 import useEvents from '../../../hooks/useEvents';
 import useModal from '../../../hooks/useModal';
+import { tabContentInset } from '../../../styles/layout';
 
 const BREWERY_LABELS: Record<string, string> = {
   'la-cumbre': 'La Cumbre Brewing Co.',
@@ -42,46 +43,57 @@ const UpcomingEventsReleases = () => {
 
   const breweryIds = [...new Set(events.map(e => e.breweryId))];
 
-  if (loading) return <Spinner />;
+  if (loading) {
+    return (
+      <Screen>
+        <Spinner />
+      </Screen>
+    );
+  }
 
   return (
-    <ScrollView className="flex-1 bg-amber-50 dark:bg-[#0C0A06]">
-      {breweryIds.map(breweryId => {
-        const breweryEvents = events.filter(e => e.breweryId === breweryId);
-        return (
-          <View key={breweryId}>
-            <SectionHeader label={BREWERY_LABELS[breweryId] ?? breweryId.toUpperCase()} />
-            {breweryEvents.map((item) => {
-              const badge = parseDateBadge(item.date);
-              return (
-                <TouchableOpacity
-                  key={item.id}
-                  className="flex-row items-center py-3 px-4 bg-white dark:bg-[#1A140A] border-b border-amber-100 dark:border-[#2E2010]"
-                  onPress={() => openModal({
-                    header: item.name,
-                    subtext: item.description,
-                    date: formatDate(item.date),
-                    image: item.image,
-                  })}
-                >
-                  <View className="bg-amber-500 dark:bg-amber-400 rounded-xl w-12 items-center py-2 mr-3">
-                    <Text className="font-black text-white text-lg leading-none">{badge.day}</Text>
-                    <Text className="text-white text-xs uppercase">{badge.month}</Text>
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-stone-900 dark:text-amber-50 font-semibold text-sm" numberOfLines={1}>
-                      {item.name}
-                    </Text>
-                    <Text className="text-stone-500 dark:text-amber-200 text-xs mt-0.5" numberOfLines={2}>
-                      {item.description}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        );
-      })}
+    <Screen>
+      <ScrollView contentContainerStyle={tabContentInset}>
+        {breweryIds.length === 0 ? <ListEmptyState label="No upcoming events or releases yet." /> : null}
+        {breweryIds.map(breweryId => {
+          const breweryEvents = events.filter(e => e.breweryId === breweryId);
+          return (
+            <View key={breweryId} className="mb-4">
+              <SectionHeader label={BREWERY_LABELS[breweryId] ?? breweryId.toUpperCase()} />
+              <Card className="p-0 overflow-hidden">
+                {breweryEvents.map((item) => {
+                  const badge = parseDateBadge(item.date);
+                  return (
+                    <TouchableOpacity
+                      key={item.id}
+                      className="flex-row items-center py-4 px-4 bg-transparent border-b border-atelier-separator dark:border-atelier-separator-dark"
+                      onPress={() => openModal({
+                        header: item.name,
+                        subtext: item.description,
+                        date: formatDate(item.date),
+                        image: item.image,
+                      })}
+                    >
+                      <View className="bg-atelier-accent rounded-xl w-12 items-center py-2 mr-3">
+                        <Text className="font-black text-white text-lg leading-none">{badge.day}</Text>
+                        <Text className="text-white text-xs uppercase">{badge.month}</Text>
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-atelier-text dark:text-atelier-text-inverse font-semibold text-sm" numberOfLines={1}>
+                          {item.name}
+                        </Text>
+                        <Text className="text-atelier-text-muted dark:text-atelier-text-muted-dark text-xs mt-0.5" numberOfLines={2}>
+                          {item.description}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </Card>
+            </View>
+          );
+        })}
+      </ScrollView>
       <EventModal
         visible={!!eventModal.visible}
         header={String(eventModal.header ?? '')}
@@ -90,7 +102,7 @@ const UpcomingEventsReleases = () => {
         image={String(eventModal.image ?? '')}
         closeModal={closeModal}
       />
-    </ScrollView>
+    </Screen>
   );
 };
 

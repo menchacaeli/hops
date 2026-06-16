@@ -3,9 +3,10 @@ import { FlatList, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import BeerModal from '../../../components/BeerModal';
 import ListThumbnailSquare from '../../../components/ListThumbnailSquare';
-import { Spinner } from '../../../components/ui';
+import { Card, ListEmptyState, Screen, Spinner } from '../../../components/ui';
 import useBeers from '../../../hooks/useBeers';
 import useModal from '../../../hooks/useModal';
+import { tabContentInset } from '../../../styles/layout';
 import type { Beer } from '../../../data';
 
 const TopRatedBeers = () => {
@@ -38,15 +39,26 @@ const TopRatedBeers = () => {
   const keyExtractor = useCallback((item: Beer) => item.id, []);
 
   return (
-    <View className="flex-1 bg-amber-50 dark:bg-[#0C0A06]">
-      {loading ? <Spinner /> : <FlatList data={topRated} keyExtractor={keyExtractor} renderItem={renderItem} />}
+    <Screen>
+      {loading ? <Spinner /> : (
+        <View style={tabContentInset}>
+          <Card className="p-0 overflow-hidden">
+            <FlatList
+              data={topRated}
+              keyExtractor={keyExtractor}
+              renderItem={renderItem}
+              ListEmptyComponent={<ListEmptyState label="No top rated beers yet." />}
+            />
+          </Card>
+        </View>
+      )}
       <BeerModal
         visible={!!beerModal.visible} header={String(beerModal.header ?? '')} subtext={String(beerModal.subtext ?? '')}
         stats={String(beerModal.stats ?? '')} description={String(beerModal.description ?? '')} image={String(beerModal.image ?? '')}
         rating={Number(beerModal.rating ?? 0)} isFavorite={false} isReadOnly={true} hasAddRemoveButton={false}
         closeModal={closeModal}
       />
-    </View>
+    </Screen>
   );
 };
 

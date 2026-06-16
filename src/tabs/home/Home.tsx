@@ -4,9 +4,11 @@ import { useFocusEffect, NavigationProp } from '@react-navigation/native';
 import BeerModal from '../../components/BeerModal';
 import BreweryModal from '../../components/BreweryModal';
 import ListIcon from '../../components/ListIcon';
+import SectionHeader from '../../components/SectionHeader';
 import ListThumbnailSquare from '../../components/ListThumbnailSquare';
 import ListThumbnail from '../../components/ListThumbnail';
-import { Card, Spinner } from '../../components/ui';
+import { Card, Screen, Spinner } from '../../components/ui';
+import { tabContentInset } from '../../styles/layout';
 import useUserFavorites from '../../hooks/useUserFavorites';
 import useModal from '../../hooks/useModal';
 import type { Beer, Brewery } from '../../data';
@@ -19,16 +21,11 @@ const MENU_ITEMS = [
 
 type Props = { navigation: NavigationProp<Record<string, undefined>> };
 
-const SectionLabel = ({ label }: { label: string }) => (
-  <Text className="text-stone-500 dark:text-amber-200 text-xs font-bold uppercase tracking-widest mb-2">
-    {label}
-  </Text>
-);
 
 const EmptyFavorites = ({ noun }: { noun: string }) => (
   <View className="py-8 items-center">
     <Text className="text-3xl mb-2">🍺</Text>
-    <Text className="text-stone-400 dark:text-amber-200 text-sm">
+    <Text className="text-atelier-text-muted dark:text-atelier-text-muted-dark text-sm">
       No favorite {noun} yet
     </Text>
   </View>
@@ -87,49 +84,51 @@ const Home = ({ navigation }: Props) => {
   ), [openBreweryModal]);
 
   return (
-    <ScrollView className="flex-1 bg-amber-50 dark:bg-[#0C0A06]" contentContainerStyle={{ padding: 16 }}>
-      <SectionLabel label="Explore" />
-      <Card className="p-0 overflow-hidden mb-4">
-        <FlatList
-          data={MENU_ITEMS}
-          keyExtractor={item => item.stack}
-          renderItem={renderMenuItem}
-          scrollEnabled={false}
-        />
-      </Card>
-
-      <SectionLabel label="Favorite Beers" />
-      <Card className="p-0 overflow-hidden mb-4">
-        {loading ? (
-          <View className="py-6"><Spinner /></View>
-        ) : favoriteBeers.length === 0 ? (
-          <EmptyFavorites noun="beers" />
-        ) : (
+    <Screen>
+      <ScrollView contentContainerStyle={tabContentInset}>
+        <SectionHeader label="Explore" />
+        <Card className="p-0 overflow-hidden mb-4">
           <FlatList
-            data={favoriteBeers}
-            keyExtractor={item => item.id}
-            renderItem={renderFavBeer}
+            data={MENU_ITEMS}
+            keyExtractor={item => item.stack}
+            renderItem={renderMenuItem}
             scrollEnabled={false}
           />
-        )}
-      </Card>
+        </Card>
 
-      <SectionLabel label="Favorite Breweries" />
-      <Card className="p-0 overflow-hidden mb-4">
-        {loading ? (
-          <View className="py-6"><Spinner /></View>
-        ) : favoriteBreweries.length === 0 ? (
-          <EmptyFavorites noun="breweries" />
-        ) : (
-          <FlatList
-            data={favoriteBreweries}
-            keyExtractor={item => item.id}
-            renderItem={renderFavBrewery}
-            scrollEnabled={false}
-          />
-        )}
-      </Card>
+        <SectionHeader label="Favorite Beers" />
+        <Card className="p-0 overflow-hidden mb-4">
+          {loading ? (
+            <View className="py-6"><Spinner /></View>
+          ) : favoriteBeers.length === 0 ? (
+            <EmptyFavorites noun="beers" />
+          ) : (
+            <FlatList
+              data={favoriteBeers}
+              keyExtractor={item => item.id}
+              renderItem={renderFavBeer}
+              scrollEnabled={false}
+            />
+          )}
+        </Card>
 
+        <SectionHeader label="Favorite Breweries" />
+        <Card className="p-0 overflow-hidden mb-4">
+          {loading ? (
+            <View className="py-6"><Spinner /></View>
+          ) : favoriteBreweries.length === 0 ? (
+            <EmptyFavorites noun="breweries" />
+          ) : (
+            <FlatList
+              data={favoriteBreweries}
+              keyExtractor={item => item.id}
+              renderItem={renderFavBrewery}
+              scrollEnabled={false}
+            />
+          )}
+        </Card>
+
+      </ScrollView>
       <BeerModal
         visible={!!beerModal.visible}
         header={String(beerModal.header ?? '')}
@@ -156,7 +155,7 @@ const Home = ({ navigation }: Props) => {
         closeModal={closeBreweryModal}
         removeFromFavorites={() => onRemoveBreweryFavorite(String(breweryModal.breweryId))}
       />
-    </ScrollView>
+    </Screen>
   );
 };
 

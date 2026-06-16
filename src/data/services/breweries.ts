@@ -1,28 +1,23 @@
 // src/data/services/breweries.ts
 import { USE_MOCK } from '../config';
+import { createDoc, deleteDocById, findById, listCollection, updateDocById } from '../firestoreClient';
 import { mockBreweries } from '../mock/breweries';
 import type { Brewery } from '../models';
 
 export async function getBreweries(): Promise<Brewery[]> {
   if (USE_MOCK) return [...mockBreweries];
-  // const snap = await getDocs(collection(db, 'breweries'));
-  // return snap.docs.map(d => ({ id: d.id, ...d.data() } as Brewery));
-  return [];
+  return listCollection<Brewery>('breweries');
 }
 
 export async function getBrewery(id: string): Promise<Brewery | null> {
   if (USE_MOCK) return mockBreweries.find(b => b.id === id) ?? null;
-  // const snap = await getDoc(doc(db, 'breweries', id));
-  // return snap.exists() ? { id: snap.id, ...snap.data() } as Brewery : null;
-  return null;
+  return findById<Brewery>('breweries', id);
 }
 
 export async function getTopRatedBreweries(): Promise<Brewery[]> {
   if (USE_MOCK) return mockBreweries.filter(b => b.rating >= 3);
-  // const q = query(collection(db, 'breweries'), where('rating', '>=', 3), orderBy('rating', 'desc'));
-  // const snap = await getDocs(q);
-  // return snap.docs.map(d => ({ id: d.id, ...d.data() } as Brewery));
-  return [];
+  const all = await listCollection<Brewery>('breweries');
+  return all.filter(b => b.rating >= 3).sort((a, b) => b.rating - a.rating);
 }
 
 export async function createBrewery(brewery: Omit<Brewery, 'id'>): Promise<Brewery> {
@@ -31,9 +26,7 @@ export async function createBrewery(brewery: Omit<Brewery, 'id'>): Promise<Brewe
     mockBreweries.push(newBrewery);
     return newBrewery;
   }
-  // const ref = await addDoc(collection(db, 'breweries'), brewery);
-  // return { id: ref.id, ...brewery };
-  throw new Error('Firebase not configured');
+  return createDoc<Brewery>('breweries', brewery);
 }
 
 export async function updateBrewery(id: string, updates: Partial<Brewery>): Promise<void> {
@@ -42,7 +35,7 @@ export async function updateBrewery(id: string, updates: Partial<Brewery>): Prom
     if (idx !== -1) Object.assign(mockBreweries[idx], updates);
     return;
   }
-  // await updateDoc(doc(db, 'breweries', id), updates);
+  await updateDocById<Brewery>('breweries', id, updates);
 }
 
 export async function deleteBrewery(id: string): Promise<void> {
@@ -51,5 +44,5 @@ export async function deleteBrewery(id: string): Promise<void> {
     if (idx !== -1) mockBreweries.splice(idx, 1);
     return;
   }
-  // await deleteDoc(doc(db, 'breweries', id));
+  await deleteDocById('breweries', id);
 }
