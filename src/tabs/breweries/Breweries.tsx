@@ -57,7 +57,7 @@ const Breweries = () => {
   const keyExtractor = useCallback((item: Brewery) => item.id, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f6fbf7' }}>
+    <View className="flex-1 bg-amber-50 dark:bg-[#0C0A06]">
       {loading ? <Spinner /> : <FlatList data={breweries} keyExtractor={keyExtractor} renderItem={renderItem} />}
       <BreweryModal
         visible={!!breweryModal.visible}
