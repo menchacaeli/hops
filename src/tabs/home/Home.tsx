@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { FlatList, ScrollView, StyleSheet, View, Text } from 'react-native';
+import { FlatList, ScrollView, View, Text } from 'react-native';
 import { useFocusEffect, NavigationProp } from '@react-navigation/native';
 import BeerModal from '../../components/BeerModal';
 import BreweryModal from '../../components/BreweryModal';
@@ -18,6 +18,21 @@ const MENU_ITEMS = [
 ];
 
 type Props = { navigation: NavigationProp<Record<string, undefined>> };
+
+const SectionLabel = ({ label }: { label: string }) => (
+  <Text className="text-stone-500 dark:text-amber-200 text-xs font-bold uppercase tracking-widest mb-2">
+    {label}
+  </Text>
+);
+
+const EmptyFavorites = ({ noun }: { noun: string }) => (
+  <View className="py-8 items-center">
+    <Text className="text-3xl mb-2">🍺</Text>
+    <Text className="text-stone-400 dark:text-amber-200 text-sm">
+      No favorite {noun} yet
+    </Text>
+  </View>
+);
 
 const Home = ({ navigation }: Props) => {
   const { favoriteBeers, favoriteBreweries, loading, load, removeBeerFavorite, removeBreweryFavorite } = useUserFavorites();
@@ -44,56 +59,105 @@ const Home = ({ navigation }: Props) => {
 
   const renderFavBeer = useCallback(({ item }: { item: Beer }) => (
     <ListThumbnailSquare
-      text={item.name} subtext={item.description} image={item.image} rating={item.rating} isReadOnly={true}
-      onPress={() => openBeerModal({ beerId: item.id, header: item.name, subtext: item.breweryId, stats: `ABV: ${item.abv} IBUs: ${item.ibu}`, description: item.description, image: item.image, rating: item.rating, isFavorite: true })}
+      text={item.name}
+      subtext={item.description}
+      image={item.image}
+      rating={item.rating}
+      isReadOnly={true}
+      onPress={() => openBeerModal({
+        beerId: item.id, header: item.name, subtext: item.breweryId,
+        stats: `ABV: ${item.abv} IBUs: ${item.ibu}`, description: item.description,
+        image: item.image, rating: item.rating, isFavorite: true,
+      })}
     />
   ), [openBeerModal]);
 
   const renderFavBrewery = useCallback(({ item }: { item: Brewery }) => (
     <ListThumbnail
-      text={item.name} subtext={item.address} image={item.image} rating={item.rating} isReadOnly={true}
-      onPress={() => openBreweryModal({ breweryId: item.id, header: item.name, address: item.address, phone: item.phone, image: item.image, rating: item.rating, isFavorite: true })}
+      text={item.name}
+      subtext={item.address}
+      image={item.image}
+      rating={item.rating}
+      isReadOnly={true}
+      onPress={() => openBreweryModal({
+        breweryId: item.id, header: item.name, address: item.address,
+        phone: item.phone, image: item.image, rating: item.rating, isFavorite: true,
+      })}
     />
   ), [openBreweryModal]);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Card style={styles.card}>
-        <FlatList data={MENU_ITEMS} keyExtractor={item => item.stack} renderItem={renderMenuItem} scrollEnabled={false} />
+    <ScrollView className="flex-1 bg-amber-50 dark:bg-[#0C0A06]" contentContainerStyle={{ padding: 16 }}>
+      <SectionLabel label="Explore" />
+      <Card className="p-0 overflow-hidden mb-4">
+        <FlatList
+          data={MENU_ITEMS}
+          keyExtractor={item => item.stack}
+          renderItem={renderMenuItem}
+          scrollEnabled={false}
+        />
       </Card>
-      <Card style={styles.card}>
-        <Text style={styles.cardHeader}>Favorite Beers</Text>
-        {loading ? <Spinner /> : (
-          <FlatList data={favoriteBeers} keyExtractor={item => item.id} renderItem={renderFavBeer} scrollEnabled={false} />
+
+      <SectionLabel label="Favorite Beers" />
+      <Card className="p-0 overflow-hidden mb-4">
+        {loading ? (
+          <View className="py-6"><Spinner /></View>
+        ) : favoriteBeers.length === 0 ? (
+          <EmptyFavorites noun="beers" />
+        ) : (
+          <FlatList
+            data={favoriteBeers}
+            keyExtractor={item => item.id}
+            renderItem={renderFavBeer}
+            scrollEnabled={false}
+          />
         )}
       </Card>
-      <Card style={styles.card}>
-        <Text style={styles.cardHeader}>Favorite Breweries</Text>
-        {loading ? <Spinner /> : (
-          <FlatList data={favoriteBreweries} keyExtractor={item => item.id} renderItem={renderFavBrewery} scrollEnabled={false} />
+
+      <SectionLabel label="Favorite Breweries" />
+      <Card className="p-0 overflow-hidden mb-4">
+        {loading ? (
+          <View className="py-6"><Spinner /></View>
+        ) : favoriteBreweries.length === 0 ? (
+          <EmptyFavorites noun="breweries" />
+        ) : (
+          <FlatList
+            data={favoriteBreweries}
+            keyExtractor={item => item.id}
+            renderItem={renderFavBrewery}
+            scrollEnabled={false}
+          />
         )}
       </Card>
+
       <BeerModal
-        visible={!!beerModal.visible} header={String(beerModal.header ?? '')} subtext={String(beerModal.subtext ?? '')}
-        stats={String(beerModal.stats ?? '')} description={String(beerModal.description ?? '')} image={String(beerModal.image ?? '')}
-        rating={Number(beerModal.rating ?? 0)} isFavorite={true} isReadOnly={true} hasAddRemoveButton={false}
-        closeModal={closeBeerModal} removeFromFavorites={() => onRemoveBeerFavorite(String(beerModal.beerId))}
+        visible={!!beerModal.visible}
+        header={String(beerModal.header ?? '')}
+        subtext={String(beerModal.subtext ?? '')}
+        stats={String(beerModal.stats ?? '')}
+        description={String(beerModal.description ?? '')}
+        image={String(beerModal.image ?? '')}
+        rating={Number(beerModal.rating ?? 0)}
+        isFavorite={true}
+        isReadOnly={true}
+        hasAddRemoveButton={false}
+        closeModal={closeBeerModal}
+        removeFromFavorites={() => onRemoveBeerFavorite(String(beerModal.beerId))}
       />
       <BreweryModal
-        visible={!!breweryModal.visible} header={String(breweryModal.header ?? '')} address={String(breweryModal.address ?? '')}
-        phone={String(breweryModal.phone ?? '')} image={String(breweryModal.image ?? '')}
-        rating={Number(breweryModal.rating ?? 0)} isFavorite={true} isReadOnly={true}
-        closeModal={closeBreweryModal} removeFromFavorites={() => onRemoveBreweryFavorite(String(breweryModal.breweryId))}
+        visible={!!breweryModal.visible}
+        header={String(breweryModal.header ?? '')}
+        address={String(breweryModal.address ?? '')}
+        phone={String(breweryModal.phone ?? '')}
+        image={String(breweryModal.image ?? '')}
+        rating={Number(breweryModal.rating ?? 0)}
+        isFavorite={true}
+        isReadOnly={true}
+        closeModal={closeBreweryModal}
+        removeFromFavorites={() => onRemoveBreweryFavorite(String(breweryModal.breweryId))}
       />
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f6fbf7' },
-  content: { padding: 12 },
-  card: { marginBottom: 12, padding: 0, overflow: 'hidden' },
-  cardHeader: { fontSize: 15, fontWeight: '600', paddingVertical: 10, paddingHorizontal: 16, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#e0e0e0' },
-});
 
 export default Home;
