@@ -4,27 +4,28 @@ import PrimaryButton from '../../src/components/ui/PrimaryButton';
 
 describe('PrimaryButton', () => {
   it('renders the label', () => {
-    const { getByText } = render(
-      <PrimaryButton label="Sign In" onPress={() => {}} />
-    );
+    const { getByText } = render(<PrimaryButton label="Sign In" onPress={() => {}} />);
     expect(getByText('Sign In')).toBeTruthy();
   });
 
   it('calls onPress when tapped', () => {
     const onPress = jest.fn();
-    const { getByText } = render(
-      <PrimaryButton label="Sign In" onPress={onPress} />
-    );
+    const { getByText } = render(<PrimaryButton label="Sign In" onPress={onPress} />);
     fireEvent.press(getByText('Sign In'));
     expect(onPress).toHaveBeenCalledTimes(1);
   });
 
   it('does not call onPress when disabled', () => {
     const onPress = jest.fn();
-    const { getByText } = render(
-      <PrimaryButton label="Sign In" onPress={onPress} disabled />
-    );
+    const { getByText } = render(<PrimaryButton label="Sign In" onPress={onPress} disabled />);
     fireEvent.press(getByText('Sign In'));
     expect(onPress).not.toHaveBeenCalled();
+  });
+
+  it('renders outline variant without crashing', () => {
+    const { getByText } = render(
+      <PrimaryButton label="Login" onPress={() => {}} variant="outline" />
+    );
+    expect(getByText('Login')).toBeTruthy();
   });
 });
