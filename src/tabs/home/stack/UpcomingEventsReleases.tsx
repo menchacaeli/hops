@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { format, parseISO } from 'date-fns';
 import { useFocusEffect } from '@react-navigation/native';
 import SectionHeader from '../../../components/SectionHeader';
-import EventModal from '../../home/components/EventModal';
+import EventModal from '../components/EventModal';
 import { Spinner } from '../../../components/ui';
 import useEvents from '../../../hooks/useEvents';
 import useModal from '../../../hooks/useModal';

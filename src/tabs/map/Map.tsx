@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -14,7 +14,7 @@ const Map = () => {
   return (
     <View className="flex-1 bg-amber-50 dark:bg-[#0C0A06]">
       <MapView
-        style={styles.map}
+        style={{ flex: 1 }}
         showsUserLocation={true}
         followUserLocation={false}
         zoomEnabled={true}
@@ -39,9 +39,5 @@ const Map = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  map: { flex: 1 },
-});
 
 export default Map;
