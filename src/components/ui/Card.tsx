@@ -1,28 +1,15 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 
 type Props = {
   children: React.ReactNode;
-  style?: object;
+  className?: string;
 };
 
-export default function Card({ children, style }: Props) {
+export default function Card({ children, className }: Props) {
   return (
-    <View style={[styles.card, style]}>
+    <View className={`bg-white dark:bg-[#1A140A] rounded-2xl border border-amber-200 dark:border-[#2E2010] p-4 ${className ?? ''}`}>
       {children}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-});
