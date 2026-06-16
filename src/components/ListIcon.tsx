@@ -13,7 +13,7 @@ type Props = {
 const ListIcon = ({ text, icon, stack, navigation }: Props) => {
   const scheme = useColorScheme();
   const iconColor = scheme === 'dark' ? '#4ADE80' : '#166534';
-  const chevronColor = scheme === 'dark' ? '#F59E0B' : '#FCD34D';
+  const chevronColor = scheme === 'dark' ? '#F59E0B' : '#FBBF24';
 
   return (
     <TouchableOpacity
