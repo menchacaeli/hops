@@ -1,8 +1,8 @@
-// src/landing/Landing.tsx
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, StyleSheet, View, ScrollView, TouchableOpacity, Text } from 'react-native';
+import { Animated, Easing, View, ScrollView, TouchableOpacity, Text } from 'react-native';
 import Login from '../login/Login';
 import Account from '../account/CreateAccount';
+import PrimaryButton from '../components/ui/PrimaryButton';
 import type { AuthResult } from '../data';
 
 type Props = {
@@ -28,49 +28,50 @@ const Landing = ({ login, createAccount }: Props) => {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.boxContainer}>
-          <Animated.View style={{ opacity }}>
-            <Text style={styles.hops}>Hops</Text>
-          </Animated.View>
-        </View>
-        <View>
-          {showLogin ? <Login login={login} /> : null}
-          {showAccount ? <Account createAccount={createAccount} /> : null}
-          {!showLogin && !showAccount ? (
-            <>
-              <TouchableOpacity style={[styles.button, styles.buttonOutline]} onPress={() => setShowLogin(true)}>
-                <Text style={styles.buttonOutlineText}>login</Text>
+    <View className="flex-1 bg-amber-50 dark:bg-[#0C0A06]">
+      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 32 }}>
+        <Animated.View style={{ opacity }} className="items-center mb-12">
+          <Text className="text-5xl text-center mb-2">🌿</Text>
+          <Text className="font-black text-7xl text-green-800 dark:text-green-400 text-center">
+            Hops
+          </Text>
+          <Text className="text-stone-500 dark:text-amber-200 text-sm tracking-wide text-center mt-2">
+            Discover craft beer & breweries
+          </Text>
+        </Animated.View>
+
+        {showLogin ? <Login login={login} /> : null}
+        {showAccount ? <Account createAccount={createAccount} /> : null}
+
+        {!showLogin && !showAccount ? (
+          <View>
+            <PrimaryButton
+              label="Create Account"
+              onPress={() => setShowAccount(true)}
+              variant="filled"
+            />
+            <View className="mt-3">
+              <PrimaryButton
+                label="Login"
+                onPress={() => setShowLogin(true)}
+                variant="outline"
+              />
+            </View>
+            {__DEV__ ? (
+              <TouchableOpacity
+                className="mt-10 items-center py-2"
+                onPress={() => login('dev@hops.com', 'password')}
+              >
+                <Text className="text-stone-400 dark:text-amber-200 text-xs">
+                  ⚡ skip login (dev)
+                </Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.button, styles.buttonFilled]} onPress={() => setShowAccount(true)}>
-                <Text style={styles.buttonFilledText}>create account</Text>
-              </TouchableOpacity>
-              {__DEV__ ? (
-                <TouchableOpacity style={styles.devButton} onPress={() => login('dev@hops.com', 'password')}>
-                  <Text style={styles.devButtonText}>⚡ skip login (dev)</Text>
-                </TouchableOpacity>
-              ) : null}
-            </>
-          ) : null}
-        </View>
+            ) : null}
+          </View>
+        ) : null}
       </ScrollView>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f6fbf7' },
-  content: { flexGrow: 1, justifyContent: 'center', padding: 20 },
-  boxContainer: { alignItems: 'center', marginBottom: 32 },
-  hops: { fontSize: 60, fontWeight: 'bold', textAlign: 'center', color: '#71bc78' },
-  button: { borderRadius: 24, paddingVertical: 14, alignItems: 'center', marginTop: 20 },
-  buttonOutline: { borderWidth: 2, borderColor: '#71bc78' },
-  buttonOutlineText: { color: '#71bc78', fontSize: 16, fontWeight: '600' },
-  buttonFilled: { backgroundColor: '#71bc78' },
-  buttonFilledText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  devButton: { marginTop: 32, alignItems: 'center', paddingVertical: 8 },
-  devButtonText: { color: '#aaa', fontSize: 13 },
-});
 
 export default Landing;
