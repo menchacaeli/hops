@@ -38,7 +38,7 @@ const TopRatedBeers = () => {
   const keyExtractor = useCallback((item: Beer) => item.id, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f6fbf7' }}>
+    <View className="flex-1 bg-amber-50 dark:bg-[#0C0A06]">
       {loading ? <Spinner /> : <FlatList data={topRated} keyExtractor={keyExtractor} renderItem={renderItem} />}
       <BeerModal
         visible={!!beerModal.visible} header={String(beerModal.header ?? '')} subtext={String(beerModal.subtext ?? '')}
