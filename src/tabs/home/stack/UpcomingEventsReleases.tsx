@@ -1,26 +1,19 @@
 import React, { useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { format, parseISO } from 'date-fns';
 import { useFocusEffect } from '@react-navigation/native';
-import ListThumbnailSeparator from '../../../components/ListThumbnailSeparator';
-import EventModal from '../components/EventModal';
+import SectionHeader from '../../../components/SectionHeader';
+import EventModal from '../../home/components/EventModal';
 import { Spinner } from '../../../components/ui';
 import useEvents from '../../../hooks/useEvents';
 import useModal from '../../../hooks/useModal';
-import type { EventItem } from '../../../data';
 
 const BREWERY_LABELS: Record<string, string> = {
-  'la-cumbre': 'LA CUMBRE BREWING CO',
-  'marble': 'MARBLE BREWING CO',
-  'bosque': 'BOSQUE BREWING CO',
-  'santa-fe': 'SANTA FE BREWING CO',
+  'la-cumbre': 'La Cumbre Brewing Co.',
+  'marble': 'Marble Brewing Co.',
+  'bosque': 'Bosque Brewing Co.',
+  'santa-fe': 'Santa Fe Brewing Co.',
 };
-
-const SectionHeader = ({ label }: { label: string }) => (
-  <View style={styles.sectionHeader}>
-    <Text style={styles.sectionLabel}>{label}</Text>
-  </View>
-);
 
 const formatDate = (date: string) => {
   try {
@@ -29,6 +22,15 @@ const formatDate = (date: string) => {
       : format(parseISO(date), 'MMM d, yyyy');
   } catch {
     return date;
+  }
+};
+
+const parseDateBadge = (date: string): { day: string; month: string } => {
+  try {
+    const d = parseISO(date);
+    return { day: format(d, 'd'), month: format(d, 'MMM').toUpperCase() };
+  } catch {
+    return { day: '?', month: '???' };
   }
 };
 
@@ -43,28 +45,40 @@ const UpcomingEventsReleases = () => {
   if (loading) return <Spinner />;
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView className="flex-1 bg-amber-50 dark:bg-[#0C0A06]">
       {breweryIds.map(breweryId => {
         const breweryEvents = events.filter(e => e.breweryId === breweryId);
         return (
           <View key={breweryId}>
             <SectionHeader label={BREWERY_LABELS[breweryId] ?? breweryId.toUpperCase()} />
-            {breweryEvents.map((item: EventItem) => (
-              <ListThumbnailSeparator
-                key={item.id}
-                text={item.name}
-                subtext={item.description}
-                image={item.image}
-                onPress={() =>
-                  openModal({
+            {breweryEvents.map((item) => {
+              const badge = parseDateBadge(item.date);
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  className="flex-row items-center py-3 px-4 bg-white dark:bg-[#1A140A] border-b border-amber-100 dark:border-[#2E2010]"
+                  onPress={() => openModal({
                     header: item.name,
                     subtext: item.description,
                     date: formatDate(item.date),
                     image: item.image,
-                  })
-                }
-              />
-            ))}
+                  })}
+                >
+                  <View className="bg-amber-500 dark:bg-amber-400 rounded-xl w-12 items-center py-2 mr-3">
+                    <Text className="font-black text-white text-lg leading-none">{badge.day}</Text>
+                    <Text className="text-white text-xs uppercase">{badge.month}</Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-stone-900 dark:text-amber-50 font-semibold text-sm" numberOfLines={1}>
+                      {item.name}
+                    </Text>
+                    <Text className="text-stone-500 dark:text-amber-200 text-xs mt-0.5" numberOfLines={2}>
+                      {item.description}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         );
       })}
@@ -79,11 +93,5 @@ const UpcomingEventsReleases = () => {
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f6fbf7' },
-  sectionHeader: { backgroundColor: '#e8f5e9', paddingVertical: 8, paddingHorizontal: 16, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#ccc' },
-  sectionLabel: { fontSize: 12, fontWeight: '600', color: '#555', letterSpacing: 0.5 },
-});
 
 export default UpcomingEventsReleases;
