@@ -1,5 +1,13 @@
 import React from 'react';
-import { StyleSheet, View, Text, Modal, Image, Dimensions, TouchableOpacity } from 'react-native';
+import {
+  Modal,
+  View,
+  Text,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import StarRating from 'react-native-star-rating-widget';
 
 type Props = {
@@ -33,150 +41,78 @@ const BeerModal = ({
   isReadOnly,
   hasAddRemoveButton,
 }: Props) => {
+  const statParts = stats.split(' ').reduce<string[]>((acc, part) => {
+    if (part.startsWith('ABV:') || part.startsWith('IBUs:')) acc.push(part);
+    return acc;
+  }, []);
+
   return (
-    <Modal animationType="slide" transparent={true} visible={visible}>
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <View style={styles.modalContentContainer}>
-            <View style={styles.modalImageContainer}>
-              <Image source={{ uri: image }} style={styles.modalImage} />
-            </View>
-            <View style={styles.modalTextContainer}>
-              <Text style={styles.modalHeader}>{header}</Text>
-              <Text style={styles.modalSubText}>{subtext}</Text>
-              <Text style={styles.modalText}>{stats}</Text>
-              <View style={styles.starContainer}>
-                <StarRating
-                  disabled={isReadOnly}
-                  maxStars={5}
-                  rating={rating}
-                  starSize={16}
-                  color={isReadOnly ? 'gray' : 'gold'}
-                  starStyle={styles.star}
-                  onChange={() => {}}
-                />
-                <Text style={styles.rateLabel}>{isReadOnly ? 'Rating' : 'Rate'}</Text>
-              </View>
-              <Text style={styles.modalDesc}>{description}</Text>
-              {hasAddRemoveButton ? (
-                <TouchableOpacity
-                  style={styles.favButton}
-                  onPress={isFavorite ? removeFromFavorites : addToFavorites}>
-                  <Text style={styles.favButtonText}>
-                    {isFavorite ? 'Remove From Favs' : 'Add to Favs'}
-                  </Text>
-                </TouchableOpacity>
-              ) : null}
-            </View>
+    <Modal animationType="slide" transparent visible={visible} onRequestClose={closeModal}>
+      <View className="flex-1">
+        <TouchableWithoutFeedback onPress={closeModal}>
+          <View className="absolute top-0 left-0 right-0 bottom-0 bg-black/60" />
+        </TouchableWithoutFeedback>
+        <View className="absolute bottom-0 left-0 right-0 h-[85%] bg-white dark:bg-[#1A140A] rounded-t-3xl overflow-hidden">
+          <View className="w-full h-44 bg-amber-100 dark:bg-[#261C0E]">
+            <Image source={{ uri: image }} className="w-full h-full" resizeMode="cover" />
           </View>
-          <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-            <Text style={styles.closeText}>Close</Text>
+          <View className="items-center pt-3">
+            <View className="w-10 h-1 bg-stone-300 dark:bg-[#2E2010] rounded-full" />
+          </View>
+          <TouchableOpacity
+            onPress={closeModal}
+            className="absolute top-[188px] right-5"
+          >
+            <Text className="text-stone-400 text-xl">✕</Text>
           </TouchableOpacity>
+          <ScrollView className="flex-1 px-5 pt-3" contentContainerStyle={{ paddingBottom: 32 }}>
+            <Text className="font-black text-2xl text-stone-900 dark:text-amber-50 pr-8">
+              {header}
+            </Text>
+            <Text className="text-green-800 dark:text-green-400 font-semibold text-sm mt-1">
+              {subtext}
+            </Text>
+            {statParts.length > 0 ? (
+              <View className="flex-row gap-2 mt-2">
+                {statParts.map((part) => (
+                  <View key={part} className="bg-amber-50 dark:bg-[#261C0E] rounded-full px-3 py-1">
+                    <Text className="text-amber-700 dark:text-amber-400 text-xs font-semibold">{part}</Text>
+                  </View>
+                ))}
+              </View>
+            ) : null}
+            <View className="flex-row items-center mt-3">
+              <StarRating
+                disabled={isReadOnly}
+                maxStars={5}
+                rating={rating}
+                starSize={18}
+                color="#FBBF24"
+                starStyle={{ paddingRight: 2 }}
+                onChange={() => {}}
+              />
+              <Text className="text-stone-500 dark:text-amber-200 text-xs ml-2">
+                {isReadOnly ? 'Rating' : 'Rate'}
+              </Text>
+            </View>
+            <Text className="text-stone-600 dark:text-amber-200 text-sm mt-3 leading-5">
+              {description}
+            </Text>
+            {hasAddRemoveButton ? (
+              <TouchableOpacity
+                className="bg-amber-600 dark:bg-amber-500 rounded-full py-4 items-center mt-5"
+                onPress={isFavorite ? removeFromFavorites : addToFavorites}
+              >
+                <Text className="text-white font-bold text-base tracking-wide">
+                  {isFavorite ? 'Remove From Favs' : 'Add to Favs'}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
+          </ScrollView>
         </View>
       </View>
     </Modal>
   );
 };
-
-const deviceWidth = Dimensions.get('window').width;
-
-const styles = StyleSheet.create({
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    marginTop: 22,
-  },
-  modalView: {
-    width: deviceWidth - 50,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 20,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  modalContentContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    width: '100%',
-  },
-  modalImageContainer: {
-    flex: 0.5,
-    width: '50%',
-    padding: 10,
-    height: 300,
-  },
-  modalImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-  },
-  modalTextContainer: {
-    flex: 0.5,
-    width: '50%',
-    padding: 10,
-  },
-  modalHeader: {
-    fontSize: 35,
-    fontWeight: 'bold',
-    marginBottom: 3,
-    lineHeight: 35,
-  },
-  modalSubText: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    marginBottom: 3,
-  },
-  modalText: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 1,
-  },
-  modalDesc: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 3,
-    marginBottom: 10,
-  },
-  star: {
-    paddingRight: 2,
-  },
-  starContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  rateLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginLeft: 8,
-  },
-  favButton: {
-    borderWidth: 1,
-    borderColor: '#333',
-    borderRadius: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    alignItems: 'center',
-  },
-  favButtonText: {
-    fontSize: 13,
-    color: '#333',
-  },
-  closeButton: {
-    marginTop: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 24,
-  },
-  closeText: {
-    fontSize: 15,
-    color: '#333',
-  },
-});
 
 export default BeerModal;
