@@ -1,7 +1,8 @@
 import React, { useCallback } from 'react';
-import { FlatList, View, Text, StyleSheet } from 'react-native';
+import { FlatList, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import BeerModal from '../../components/BeerModal';
+import SectionHeader from '../../components/SectionHeader';
 import ListThumbnailSquare from '../../components/ListThumbnailSquare';
 import { Spinner } from '../../components/ui';
 import { updateBeer } from '../../data';
@@ -75,7 +76,7 @@ const Beers = () => {
   }, [openModal, isBeerFavorite]);
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-amber-50 dark:bg-[#0C0A06]">
       {loading ? (
         <Spinner />
       ) : (
@@ -84,9 +85,7 @@ const Beers = () => {
           keyExtractor={s => s.id}
           renderItem={({ item: section }) => (
             <View>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionLabel}>{section.label}</Text>
-              </View>
+              <SectionHeader label={section.label} />
               <BeerList
                 beers={beers}
                 breweryId={section.id}
@@ -114,11 +113,5 @@ const Beers = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f6fbf7' },
-  sectionHeader: { backgroundColor: '#e8f5e9', paddingVertical: 8, paddingHorizontal: 16, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#ccc' },
-  sectionLabel: { fontSize: 12, fontWeight: '600', color: '#555', letterSpacing: 0.5 },
-});
 
 export default Beers;
