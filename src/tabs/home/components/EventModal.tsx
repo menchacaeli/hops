@@ -1,5 +1,13 @@
 import React from 'react';
-import { StyleSheet, View, Text, Modal, Image, Dimensions, TouchableOpacity } from 'react-native';
+import {
+  Modal,
+  View,
+  Text,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+} from 'react-native';
 
 type Props = {
   visible: boolean;
@@ -12,83 +20,39 @@ type Props = {
 
 const EventModal = ({ visible, header, date, subtext, image, closeModal }: Props) => {
   return (
-    <Modal animationType="slide" transparent={true} visible={visible}>
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <View style={styles.imageContainer}>
-            <Image source={{ uri: image }} style={styles.modalImage} />
+    <Modal animationType="slide" transparent visible={visible} onRequestClose={closeModal}>
+      <View className="flex-1">
+        <TouchableWithoutFeedback onPress={closeModal}>
+          <View className="absolute top-0 left-0 right-0 bottom-0 bg-black/60" />
+        </TouchableWithoutFeedback>
+        <View className="absolute bottom-0 left-0 right-0 h-[85%] bg-white dark:bg-[#1A140A] rounded-t-3xl overflow-hidden">
+          <View className="w-full h-44 bg-amber-100 dark:bg-[#261C0E]">
+            <Image source={{ uri: image }} className="w-full h-full" resizeMode="cover" />
           </View>
-          <View style={styles.content}>
-            <Text style={styles.modalHeader}>{header}</Text>
-            <Text style={styles.modalDate}>{date}</Text>
-            <Text style={styles.modalSubText}>{subtext}</Text>
+          <View className="items-center pt-3">
+            <View className="w-10 h-1 bg-stone-300 dark:bg-[#2E2010] rounded-full" />
           </View>
-          <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-            <Text style={styles.closeText}>Close</Text>
+          <TouchableOpacity
+            onPress={closeModal}
+            className="absolute top-[188px] right-5"
+          >
+            <Text className="text-stone-400 text-xl">✕</Text>
           </TouchableOpacity>
+          <ScrollView className="flex-1 px-5 pt-3" contentContainerStyle={{ paddingBottom: 32 }}>
+            <Text className="font-black text-2xl text-stone-900 dark:text-amber-50 pr-8">
+              {header}
+            </Text>
+            <View className="bg-amber-50 dark:bg-[#261C0E] rounded-full px-3 py-1 self-start mt-2">
+              <Text className="text-amber-700 dark:text-amber-400 text-xs font-semibold">{date}</Text>
+            </View>
+            <Text className="text-stone-600 dark:text-amber-200 text-sm mt-3 leading-5">
+              {subtext}
+            </Text>
+          </ScrollView>
         </View>
       </View>
     </Modal>
   );
 };
-
-const deviceWidth = Dimensions.get('window').width;
-
-const styles = StyleSheet.create({
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    marginTop: 22,
-  },
-  modalView: {
-    width: deviceWidth - 50,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  imageContainer: {
-    width: '100%',
-    height: 180,
-  },
-  modalImage: {
-    height: '100%',
-    width: '100%',
-    resizeMode: 'cover',
-  },
-  content: {
-    padding: 16,
-  },
-  modalHeader: {
-    fontSize: 25,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  modalDate: {
-    fontSize: 15,
-    marginBottom: 5,
-    color: '#444',
-  },
-  modalSubText: {
-    fontSize: 12,
-    color: '#666',
-  },
-  closeButton: {
-    alignItems: 'center',
-    paddingVertical: 14,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#e0e0e0',
-  },
-  closeText: {
-    fontSize: 15,
-    color: '#333',
-  },
-});
 
 export default EventModal;
