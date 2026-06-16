@@ -19,7 +19,7 @@ export default function PrimaryButton({
   const base = 'rounded-full py-4 px-6 items-center';
   const filled = 'bg-amber-600 dark:bg-amber-500';
   const outline = 'border-2 border-green-800 dark:border-green-400';
-  const containerClass = `${base} ${variant === 'outline' ? outline : filled} ${disabled ? 'opacity-50' : ''} ${className ?? ''}`;
+  const containerClass = [base, variant === 'outline' ? outline : filled, disabled ? 'opacity-50' : '', className].filter(Boolean).join(' ');
 
   const labelFilled = 'text-white font-bold text-base tracking-wide';
   const labelOutline = 'text-green-800 dark:text-green-400 font-bold text-base';
