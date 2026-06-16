@@ -12,7 +12,7 @@ const Map = () => {
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-amber-50 dark:bg-[#0C0A06]">
       <MapView
         style={styles.map}
         showsUserLocation={true}
@@ -30,7 +30,9 @@ const Map = () => {
             coordinate={brewery.location}
             title={brewery.name}
             description={brewery.address}>
-            <FontAwesome5 name="beer" size={20} color="#71bc78" />
+            <View className="bg-amber-500 dark:bg-amber-400 rounded-full p-2">
+              <FontAwesome5 name="beer" size={20} color="#ffffff" />
+            </View>
           </Marker>
         ))}
       </MapView>
@@ -39,7 +41,6 @@ const Map = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f6fbf7' },
   map: { flex: 1 },
 });
 
