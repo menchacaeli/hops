@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
 import StarRating from 'react-native-star-rating-widget';
 
 type Props = {
@@ -24,83 +24,45 @@ const ListThumbnail = React.memo(function ListThumbnail({
   onStarRatingPress,
 }: Props) {
   return (
-    <View style={styles.row}>
-      <Image source={{ uri: image }} style={styles.thumbnail} resizeMode="cover" />
-      <View style={styles.body}>
-        <Text style={styles.title}>{text}</Text>
-        <Text style={styles.note} numberOfLines={1}>{subtext}</Text>
+    <View className="flex-row items-center py-4 px-4 bg-white dark:bg-[#1A140A] border-b border-amber-100 dark:border-[#2E2010]">
+      <View className="w-14 h-14 rounded-full border-2 border-amber-200 dark:border-[#2E2010] bg-amber-100 dark:bg-[#261C0E] mr-3 overflow-hidden">
+        <Image source={{ uri: image }} className="w-full h-full" resizeMode="cover" />
+      </View>
+      <View className="flex-1">
+        <Text className="text-stone-900 dark:text-amber-50 font-semibold text-base mb-0.5" numberOfLines={1}>
+          {text}
+        </Text>
+        <Text className="text-stone-500 dark:text-amber-200 text-xs" numberOfLines={2}>
+          {subtext}
+        </Text>
         {releaseDate ? (
-          <Text style={styles.note} numberOfLines={1}>{releaseDate}</Text>
+          <Text className="text-stone-500 dark:text-amber-200 text-xs" numberOfLines={1}>
+            {releaseDate}
+          </Text>
         ) : null}
-        <View style={styles.starContainer}>
+        <View className="flex-row items-center mt-1">
           <StarRating
             disabled={isReadOnly}
             maxStars={5}
             rating={rating}
-            starSize={16}
-            color={isReadOnly ? 'gray' : 'gold'}
-            starStyle={styles.star}
+            starSize={14}
+            color="#FBBF24"
+            starStyle={{ paddingRight: 1 }}
             onChange={onStarRatingPress ?? (() => {})}
           />
-          <Text style={styles.rateLabel}>{isReadOnly ? 'Rating' : 'Rate'}</Text>
+          <Text className="text-stone-500 dark:text-amber-200 text-xs ml-2">
+            {isReadOnly ? 'Rating' : 'Rate'}
+          </Text>
         </View>
       </View>
-      <TouchableOpacity onPress={onPress} style={styles.viewButton}>
-        <Text style={styles.viewText}>View</Text>
+      <TouchableOpacity
+        onPress={onPress}
+        className="bg-green-800 dark:bg-green-400 rounded-full px-3 py-1 ml-2"
+      >
+        <Text className="text-white dark:text-[#0C0A06] text-xs font-semibold">View</Text>
       </TouchableOpacity>
     </View>
   );
-});
-
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e0e0e0',
-    backgroundColor: '#fff',
-  },
-  thumbnail: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    marginRight: 12,
-  },
-  body: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 15,
-    fontWeight: '500',
-    marginBottom: 2,
-  },
-  note: {
-    fontSize: 12,
-    color: '#666',
-  },
-  starContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  star: {
-    paddingRight: 2,
-  },
-  rateLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginLeft: 8,
-  },
-  viewButton: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  viewText: {
-    color: '#919c92',
-    fontSize: 14,
-  },
 });
 
 export default ListThumbnail;
