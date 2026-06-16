@@ -1,6 +1,6 @@
-// src/account/CreateAccount.tsx
 import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, TouchableOpacity, Text } from 'react-native';
+import { View, TextInput, Text } from 'react-native';
+import PrimaryButton from '../components/ui/PrimaryButton';
 import type { AuthResult } from '../data';
 
 type Props = {
@@ -23,27 +23,36 @@ const CreateAccount = ({ createAccount }: Props) => {
 
   return (
     <View>
-      <TextInput style={styles.input} placeholder="Username" onChangeText={setUsername} autoCapitalize="none" />
-      <TextInput style={styles.input} placeholder="Email" onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
-      <TextInput style={styles.input} placeholder="Password" onChangeText={setPassword} secureTextEntry />
+      <TextInput
+        className="border border-amber-200 dark:border-[#2E2010] rounded-xl p-3 mb-3 text-base text-stone-900 dark:text-amber-50 bg-white dark:bg-[#1A140A]"
+        placeholder="Username"
+        placeholderTextColor="#78716C"
+        onChangeText={setUsername}
+        autoCapitalize="none"
+      />
+      <TextInput
+        className="border border-amber-200 dark:border-[#2E2010] rounded-xl p-3 mb-3 text-base text-stone-900 dark:text-amber-50 bg-white dark:bg-[#1A140A]"
+        placeholder="Email"
+        placeholderTextColor="#78716C"
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        keyboardType="email-address"
+      />
+      <TextInput
+        className="border border-amber-200 dark:border-[#2E2010] rounded-xl p-3 mb-3 text-base text-stone-900 dark:text-amber-50 bg-white dark:bg-[#1A140A]"
+        placeholder="Password"
+        placeholderTextColor="#78716C"
+        onChangeText={setPassword}
+        secureTextEntry
+      />
       {errors.map((e, i) => (
-        <View key={i} style={styles.errorContainer}>
-          <Text style={styles.errorText}>{e}</Text>
+        <View key={i} className="bg-red-50 dark:bg-red-900/30 rounded-lg px-3 py-2 mb-2">
+          <Text className="text-red-600 dark:text-red-400 text-sm">{e}</Text>
         </View>
       ))}
-      <TouchableOpacity style={styles.button} onPress={onCreateAccount}>
-        <Text style={styles.buttonText}>create account</Text>
-      </TouchableOpacity>
+      <PrimaryButton label="Create Account" onPress={onCreateAccount} variant="filled" />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 12, marginBottom: 12, fontSize: 15, backgroundColor: '#fff' },
-  button: { backgroundColor: '#71bc78', borderRadius: 24, paddingVertical: 14, alignItems: 'center', marginTop: 8 },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  errorContainer: { backgroundColor: '#ec4646', borderRadius: 4, padding: 8, marginBottom: 8 },
-  errorText: { color: '#fff', fontSize: 13 },
-});
 
 export default CreateAccount;

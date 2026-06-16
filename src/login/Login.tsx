@@ -1,6 +1,6 @@
-// src/login/Login.tsx
 import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, TouchableOpacity, Text } from 'react-native';
+import { View, TextInput, Text } from 'react-native';
+import PrimaryButton from '../components/ui/PrimaryButton';
 import type { AuthResult } from '../data';
 
 type Props = {
@@ -21,22 +21,29 @@ const Login = ({ login }: Props) => {
 
   return (
     <View>
-      <TextInput style={styles.input} placeholder="Email" onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
-      <TextInput style={styles.input} placeholder="Password" onChangeText={setPassword} secureTextEntry />
-      {error ? <View style={styles.errorContainer}><Text style={styles.errorText}>{error}</Text></View> : null}
-      <TouchableOpacity style={styles.button} onPress={onLogin}>
-        <Text style={styles.buttonText}>login</Text>
-      </TouchableOpacity>
+      <TextInput
+        className="border border-amber-200 dark:border-[#2E2010] rounded-xl p-3 mb-3 text-base text-stone-900 dark:text-amber-50 bg-white dark:bg-[#1A140A]"
+        placeholder="Email"
+        placeholderTextColor="#78716C"
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        keyboardType="email-address"
+      />
+      <TextInput
+        className="border border-amber-200 dark:border-[#2E2010] rounded-xl p-3 mb-3 text-base text-stone-900 dark:text-amber-50 bg-white dark:bg-[#1A140A]"
+        placeholder="Password"
+        placeholderTextColor="#78716C"
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+      {error ? (
+        <View className="bg-red-50 dark:bg-red-900/30 rounded-lg px-3 py-2 mb-3">
+          <Text className="text-red-600 dark:text-red-400 text-sm">{error}</Text>
+        </View>
+      ) : null}
+      <PrimaryButton label="Login" onPress={onLogin} variant="filled" />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 12, marginBottom: 12, fontSize: 15, backgroundColor: '#fff' },
-  button: { backgroundColor: '#71bc78', borderRadius: 24, paddingVertical: 14, alignItems: 'center', marginTop: 8 },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  errorContainer: { backgroundColor: '#ec4646', borderRadius: 4, padding: 8, marginBottom: 8 },
-  errorText: { color: '#fff', fontSize: 13 },
-});
 
 export default Login;
