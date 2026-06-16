@@ -1,8 +1,7 @@
 import React from 'react';
-import { TouchableOpacity, View, Text } from 'react-native';
+import { TouchableOpacity, View, Text, useColorScheme } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { NavigationProp } from '@react-navigation/native';
-import { useColorScheme } from 'react-native';
 
 type Props = {
   text: string;
