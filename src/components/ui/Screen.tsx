@@ -1,23 +1,15 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Props = {
   children: React.ReactNode;
-  style?: object;
+  className?: string;
 };
 
-export default function Screen({ children, style }: Props) {
+export default function Screen({ children, className }: Props) {
   return (
-    <SafeAreaView style={[styles.root, style]}>
+    <SafeAreaView className={`flex-1 bg-amber-50 dark:bg-[#0C0A06] ${className ?? ''}`}>
       {children}
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-});

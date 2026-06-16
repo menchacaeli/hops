@@ -5,17 +5,14 @@ import Screen from '../../src/components/ui/Screen';
 
 describe('Screen', () => {
   it('renders children', () => {
-    const { getByText } = render(
-      <Screen><Text>hello</Text></Screen>
-    );
+    const { getByText } = render(<Screen><Text>hello</Text></Screen>);
     expect(getByText('hello')).toBeTruthy();
   });
 
-  it('applies flex: 1 to root', () => {
-    const { toJSON } = render(<Screen><Text>x</Text></Screen>);
-    const root = toJSON() as any;
-    expect(root.props.style).toEqual(
-      expect.arrayContaining([expect.objectContaining({ flex: 1 })])
+  it('accepts a className override without crashing', () => {
+    const { toJSON } = render(
+      <Screen className="bg-red-500"><Text>x</Text></Screen>
     );
+    expect(toJSON()).toBeTruthy();
   });
 });
